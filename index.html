@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micrositio Académico - Prof. Diego Andrés Campo Ceballos</title>
+    <style>
+        /* --- ESTILOS GLOBALES (Estilo Blogspot Académico) --- */
+        body {
+            font-family: 'Georgia', serif; /* Tipografía clásica académica */
+            line-height: 1.6;
+            color: #333333;
+            background-color: #f5f6f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #ffffff;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border-top: 5px solid #1a365d; /* Azul universitario */
+        }
+
+        /* --- CABECERA --- */
+        header {
+            text-align: center;
+            border-bottom: 2px double #e2e8f0;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            color: #1a365d;
+        }
+
+        header p {
+            margin: 5px 0 0;
+            font-style: italic;
+            color: #4a5568;
+        }
+
+        /* --- MENÚ DE PERIODOS --- */
+        nav {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 15px;
+        }
+
+        .tab-button {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            color: #4a5568;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-family: inherit;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .tab-button:hover {
+            background-color: #e2e8f0;
+            color: #1a365d;
+        }
+
+        .tab-button.active {
+            background-color: #1a365d;
+            color: #ffffff;
+            border-color: #1a365d;
+            font-weight: bold;
+        }
+
+        /* --- CONTENIDO --- */
+        .tab-content {
+            display: none; /* Oculto por defecto */
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tab-content.active {
+            display: block; /* Visible cuando está activo */
+        }
+
+        h2 {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            border-bottom: 1px solid #edf2f7;
+            padding-bottom: 8px;
+        }
+
+        h3 {
+            color: #1a365d;
+            font-size: 1.2rem;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+
+        /* Elementos de lista y enlaces */
+        .resource-list {
+            list-style-type: square;
+            padding-left: 20px;
+        }
+
+        .resource-list li {
+            margin-bottom: 10px;
+        }
+
+        a {
+            color: #2b6cb0;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Bloques de texto plano tipo .txt */
+        .text-block {
+            background-color: #f8fafc;
+            border-left: 4px solid #cbd5e1;
+            padding: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            white-space: pre-wrap;
+            color: #2d3748;
+            margin-top: 15px;
+        }
+
+        /* --- PIE DE PÁGINA --- */
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #718096;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+
+        /* Animación suave para el cambio de contenido */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <header>
+        <h1>Prof. Diego Andrés Campo Ceballos, PhD.</h1>
+        <p>Facultad de Ingeniería / Ciencias Naturales | Universidad del Cauca</p>
+    </header>
+
+    <nav>
+        <button class="tab-button active" onclick="openPeriod(event, 'periodo-actual')">Periodo 2026-1 (Actual)</button>
+        <button class="tab-button" onclick="openPeriod(event, 'recursos-generales')">Recursos y Herramientas</button>
+        <button class="tab-button" onclick="openPeriod(event, 'archivo-historico')">Archivo Histórico</button>
+    </nav>
+
+    <main>
+
+        <div id="periodo-actual" class="tab-content active">
+            <h2>Asignaturas - Periodo 2026-1</h2>
+            <p>Bienvenidos al ciclo académico actual. Seleccione la asignatura correspondiente para acceder a guías, talleres y material complementario.</p>
+            
+            <h3>Física de Fluidos</h3>
+            <ul class="resource-list">
+                <li><a href="#">Programa de la asignatura / Sílabo</a></li>
+                <li><a href="#">Guía de Lecturas Semanales</a></li>
+            </ul>
+
+            <h3>Electrónica Analógica</h3>
+            <ul class="resource-list">
+                <li><a href="#">Guías de Laboratorio Presencial</a></li>
+                <li><a href="#">Hojas de datos (Datasheets) de componentes comunes</a></li>
+            </ul>
+
+            <h3>Máquinas Eléctricas</h3>
+            <ul class="resource-list">
+                <li><a href="#">Presentaciones de clase (Diapositivas)</a></li>
+                <li><a href="#">Problemario de transformadores y motores</a></li>
+            </ul>
+
+            <h3>Mecánica</h3>
+            <ul class="resource-list">
+                <li><a href="#">Material introductorio y vectores</a></li>
+                <li><a href="#">Talleres prácticos evaluativos</a></li>
+            </ul>
+
+            <h3>Avisos del Profesor</h3>
+            <div class="text-block">
+[AVISO GENERAL]
+Bienvenidos al semestre 2026-1. Los horarios de atención a estudiantes en cubículo se definirán durante la primera semana de clases. Por favor revisar constantemente el material cargado en este micrositio.
+            </div>
+        </div>
+
+        <div id="recursos-generales" class="tab-content">
+            <h2>Recursos y Herramientas Web</h2>
+            <p>Enlaces externos, plataformas de simulación y herramientas recomendadas para el desarrollo de los cursos:</p>
+            
+            <ul class="resource-list">
+                <li>
+                    <a href="https://universidad-del-cauca.labsland.com/google/v2/global/pgmcyarauf89366573/hive/?authuser=0" target="_blank">
+                        <strong>LABORATORIO ELECTRÓNICA</strong>
+                    </a> - Plataforma de laboratorios remotos de la Universidad del Cauca.
+                </li>
+                <li>
+                    <a href="https://opensourcephysics.github.io/tracker-website/" target="_blank">
+                        <strong>Tracker Video Analysis and Modeling Tool for Physics</strong>
+                    </a> - Software libre de análisis de video y modelado físico.
+                </li>
+                <li>
+                    <a href="https://scholar.google.com" target="_blank">Google Académico</a> - Motor de búsqueda de literatura científica.
+                </li>
+            </ul>
+        </div>
+
+        <div id="archivo-historico" class="tab-content">
+            <h2>Histórico de Cursos</h2>
+            <p>Repositorio de semestres anteriores para consulta diferida.</p>
+            <ul class="resource-list">
+                <li><a href="#">Periodo 2025-2</a></li>
+                <li><a href="#">Periodo 2025-1</a></li>
+            </ul>
+        </div>
+
+    </main>
+
+    <footer>
+        <p>© 2026 Prof. Diego Andrés Campo Ceballos, PhD.</p>
+        <p>Contacto: <a href="mailto:diegoandres@unicauca.edu.co">diegoandres@unicauca.edu.co</a> | Universidad del Cauca, Popayán, Colombia.</p>
+    </footer>
+
+</div>
+
+<script>
+    function openPeriod(evt, periodId) {
+        // Ocultar todos los contenidos de las pestañas
+        const tabContents = document.getElementsByClassName("tab-content");
+        for (let i = 0; i < tabContents.length; i++) {
+            tabContents[i].classList.remove("active");
+        }
+
+        // Quitar la clase "active" de todos los botones del menú
+        const tabButtons = document.getElementsByClassName("tab-button");
+        for (let i = 0; i < tabButtons.length; i++) {
+            tabButtons[i].classList.remove("active");
+        }
+
+        // Mostrar la pestaña actual y añadir la clase "active" al botón que la activó
+        document.getElementById(periodId).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+</script>
+
+</body>
+</html>
