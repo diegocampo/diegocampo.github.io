@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plataforma de Lectura y Escritura Académica</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+:root{--bg:#f6f1e7;--card:#fffdf8;--ink:#3a3128;--mut:#8a7c6b;--line:#e4dac8;--acc:#b5651d;--accs:#f3e3cf;--now:#f7c873;
+--c-conn:#fde3a7;--c-verb:#f9c5c5;--c-punct:#bfe3f5;--c-noun:#c6ebd0;--c-adj:#e0d0f7;--c-det:#c9d3f7;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1f1b16;--card:#2a251e;--ink:#eee4d3;--mut:#a89a86;--line:#40382d;--acc:#e0a060;--accs:#3d3225;--now:#8a6420;
+--c-conn:#6b5420;--c-verb:#6b3434;--c-punct:#2c5468;--c-noun:#2f5a3d;--c-adj:#523d7a;--c-det:#37447a}}
+:root[data-theme="dark"]{--bg:#1f1b16;--card:#2a251e;--ink:#eee4d3;--mut:#a89a86;--line:#40382d;--acc:#e0a060;--accs:#3d3225;--now:#8a6420;
+--c-conn:#6b5420;--c-verb:#6b3434;--c-punct:#2c5468;--c-noun:#2f5a3d;--c-adj:#523d7a;--c-det:#37447a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:var(--bg);color:var(--ink);font-family:Georgia,'Times New Roman',serif;margin:0}
+.ui{font-family:system-ui,-apple-system,'Segoe UI',sans-serif}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:.4rem .9rem;font-size:.85rem;cursor:pointer}
+.btn:hover{background:var(--accs)} .btn.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.fld{width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:.5rem .65rem;font:inherit;font-size:.9rem}
+.fld:focus,#editor:focus{outline:2px solid var(--acc);outline-offset:0}
+#editor,#reader{width:100%;min-height:55vh;line-height:1.9;white-space:pre-wrap;word-wrap:break-word}
+#editor{background:transparent;color:var(--ink);border:0;resize:vertical;font-family:inherit}
+.tok{border-radius:4px;padding:1px 0;cursor:pointer;transition:background .15s}
+.now{background:var(--now)} .mode-1 .now{box-shadow:0 0 0 2px var(--now)}
+.h-conn{background:var(--c-conn)}.h-verb{background:var(--c-verb)}.h-punct{background:var(--c-punct);font-weight:700}
+.h-noun{background:var(--c-noun)}.h-adj{background:var(--c-adj)}.h-det{background:var(--c-det)}
+.tab{padding:.45rem 1rem;border-radius:999px;font-size:.9rem;cursor:pointer;border:1px solid transparent}
+.tab.on{background:var(--accs);border-color:var(--line);color:var(--acc);font-weight:600}
+table{width:100%;border-collapse:separate;border-spacing:0 .4rem} th{font-size:.75rem;text-align:left;color:var(--mut);font-weight:600}
+td{padding-right:.4rem;vertical-align:top} .sw{display:inline-block;width:.8rem;height:.8rem;border-radius:3px;margin-right:.3rem;vertical-align:-1px}
+input[type=range]{accent-color:var(--acc);width:100%} details>summary{cursor:pointer;font-weight:600}
+#player{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));width:min(760px,calc(100% - 20px));z-index:20;box-shadow:0 10px 30px rgba(60,40,10,.22);padding:.7rem 1rem}
+.pbtn{width:2.6rem;height:2.6rem;border-radius:999px;border:0;background:var(--acc);color:#fff;font-size:1.05rem;cursor:pointer}
+.pbtn.sec{background:var(--accs);color:var(--acc)}
+</style>
+</head>
+<body class="ui">
+<div class="max-w-6xl mx-auto px-3 sm:px-6 pt-5 pb-40">
+  <header class="flex flex-wrap items-center justify-between gap-3 mb-4">
+    <div><h1 class="text-xl sm:text-2xl font-semibold" style="font-family:Georgia,serif">Lectura y Escritura Académica</h1>
+    <p class="text-sm" style="color:var(--mut)">Escucha, resalta y analiza tus textos</p></div>
+    <nav class="flex gap-1"><button class="tab on" data-view="lectura">Lectura</button><button class="tab" data-view="analisis">Análisis</button></nav>
+  </header>
+
+  <!-- LECTURA -->
+  <section id="v-lectura" class="grid gap-4 lg:grid-cols-[1fr_320px]">
+    <div class="card p-4 sm:p-6">
+      <div class="flex flex-wrap gap-2 mb-3">
+        <label class="btn">📄 Cargar .txt / .pdf<input id="file" type="file" accept=".txt,.pdf,text/plain,application/pdf" hidden></label>
+        <button class="btn" id="toggleView">✎ Editar</button>
+        <button class="btn" id="clearTxt">Limpiar</button>
+        <span id="status" class="text-sm self-center" style="color:var(--mut)"></span>
+      </div>
+      <textarea id="editor" class="hidden" placeholder="Escribe o pega aquí tu texto…"></textarea>
+      <div id="reader" class="mode-1" style="font-size:19px"></div>
+    </div>
+
+    <aside class="card p-4 space-y-4 h-fit">
+      <div>
+        <h2 class="font-semibold mb-2">Voz</h2>
+        <select id="voice" class="fld"></select>
+        <div class="flex gap-2 mt-2"><button class="btn flex-1" id="vF">♀ Femenina</button><button class="btn flex-1" id="vM">♂ Masculina</button></div>
+        <p id="vNote" class="text-xs mt-1" style="color:var(--mut)"></p>
+      </div>
+      <div><label class="text-sm flex justify-between">Velocidad <b id="rateV">1.0×</b></label><input id="rate" type="range" min="0.5" max="2" step="0.1" value="1"></div>
+      <div><label class="text-sm flex justify-between">Volumen <b id="volV">100%</b></label><input id="vol" type="range" min="0" max="1" step="0.05" value="1"></div>
+      <div>
+        <h2 class="font-semibold mb-2">Modo de resaltado</h2>
+        <div id="modes" class="space-y-1.5 text-sm"></div>
+        <p class="text-xs mt-2" style="color:var(--mut)">Detectados al leer: <b id="hits">0</b>. La detección automática de verbos es aproximada: completa tu lista para mayor precisión.</p>
+      </div>
+      <div>
+        <h2 class="font-semibold mb-1">Mis conectores</h2>
+        <textarea id="cConn" class="fld" rows="4" placeholder="Uno por línea o separados por coma: sin embargo, por lo tanto, además…"></textarea>
+        <label class="text-xs flex items-center gap-1 mt-1"><input type="checkbox" id="soloC"> Usar solo mi lista</label>
+      </div>
+      <div>
+        <h2 class="font-semibold mb-1">Mis verbos y sus variantes</h2>
+        <textarea id="cVerb" class="fld" rows="5" placeholder="Escribe cada forma: analizar, analiza, analizan, analizó, analizando…"></textarea>
+        <label class="text-xs flex items-center gap-1 mt-1"><input type="checkbox" id="soloV"> Usar solo mi lista</label>
+      </div>
+      <button class="btn w-full" id="preview">👁 Vista previa del resaltado</button>
+    </aside>
+  </section>
+
+  <!-- ANÁLISIS -->
+  <section id="v-analisis" class="hidden space-y-4" data-root>
+    <div class="flex flex-wrap items-center gap-2">
+      <button class="tab on" data-sec="s1">1 · Tipo de lectura</button>
+      <button class="tab" data-sec="s2">2 · Literal e inferencial</button>
+      <button class="tab" data-sec="s3">3 · Niveles de lectura</button>
+      <span class="flex-1"></span>
+      <button class="btn on" id="expHtml">⬇ Informe .html</button><button class="btn" id="expTxt">⬇ .txt</button>
+    </div>
+
+    <div id="s1" class="card p-4 sm:p-6 space-y-4" data-title="Sección 1: Tipo de lectura">
+      <h2 class="font-semibold text-lg">Tipo de lectura</h2>
+      <div class="grid md:grid-cols-3 gap-3">
+        <div><label class="text-sm font-medium">Lectura informativa</label><p class="text-xs mb-1" style="color:var(--mut)">¿Qué datos o ideas nuevas aporta el texto?</p><textarea class="fld" rows="5" data-f data-label="Justificación: lectura informativa"></textarea></div>
+        <div><label class="text-sm font-medium">Lectura crítica</label><p class="text-xs mb-1" style="color:var(--mut)">¿Qué argumentos puedes evaluar o cuestionar?</p><textarea class="fld" rows="5" data-f data-label="Justificación: lectura crítica"></textarea></div>
+        <div><label class="text-sm font-medium">Lectura recreativa</label><p class="text-xs mb-1" style="color:var(--mut)">¿Qué disfrute, imágenes o emociones despierta?</p><textarea class="fld" rows="5" data-f data-label="Justificación: lectura recreativa"></textarea></div>
+      </div>
+      <div class="flex flex-wrap gap-4 text-sm items-center"><b>Tipo predominante:</b>
+        <label><input type="radio" name="pred" value="Informativa" data-f data-label="Tipo de lectura predominante"> Informativa</label>
+        <label><input type="radio" name="pred" value="Crítica" data-f data-label="Tipo de lectura predominante"> Crítica</label>
+        <label><input type="radio" name="pred" value="Recreativa" data-f data-label="Tipo de lectura predominante"> Recreativa</label>
+        <label><input type="radio" name="pred" value="Combinada" data-f data-label="Tipo de lectura predominante"> Combinada</label></div>
+      <div><label class="text-sm font-medium">Justificación del tipo predominante</label><textarea class="fld" rows="3" data-f data-label="Justificación del tipo predominante"></textarea></div>
+    </div>
+
+    <div id="s2" class="card p-4 sm:p-6 space-y-5 hidden" data-title="Sección 2: Comprensión literal e inferencial">
+      <h2 class="font-semibold text-lg">Comprensión literal e inferencial</h2>
+      <div data-table data-label="Información explícita y explicación" data-cols="Información explícita|Explicación"></div>
+      <div data-table data-label="Preguntas y respuestas literales" data-cols="Pregunta literal|Respuesta literal (según el texto)"></div>
+      <div data-table data-label="Información del texto e inferencias" data-cols="Información en el texto|Inferencia o conexión implícita"></div>
+      <div><label class="text-sm font-medium">Justificación de la inferencia</label><textarea class="fld" rows="3" data-f data-label="Justificación de la inferencia"></textarea></div>
+    </div>
+
+    <div id="s3" class="card p-4 sm:p-6 space-y-4 hidden" data-title="Sección 3: Niveles de lectura">
+      <h2 class="font-semibold text-lg">Niveles de lectura</h2>
+      <details open class="space-y-2"><summary>Nivel literal</summary><p class="text-xs" style="color:var(--mut)">Ejemplos específicos tomados del texto.</p><textarea class="fld" rows="4" data-f data-label="Nivel literal: ejemplos"></textarea></details>
+      <details open class="space-y-2"><summary>Nivel inferencial</summary>
+        <textarea class="fld" rows="2" placeholder="Causas identificadas" data-f data-label="Nivel inferencial: causas"></textarea>
+        <textarea class="fld" rows="2" placeholder="Consecuencias identificadas" data-f data-label="Nivel inferencial: consecuencias"></textarea>
+        <textarea class="fld" rows="2" placeholder="Ideas implícitas" data-f data-label="Nivel inferencial: ideas implícitas"></textarea></details>
+      <details open class="space-y-2"><summary>Nivel crítico</summary>
+        <textarea class="fld" rows="3" placeholder="Evaluación de la postura del autor" data-f data-label="Nivel crítico: postura del autor"></textarea>
+        <textarea class="fld" rows="3" placeholder="Valoración o reflexión personal" data-f data-label="Nivel crítico: valoración personal"></textarea></details>
+    </div>
+  </section>
+</div>
+
+<!-- REPRODUCTOR -->
+<div id="player" class="card">
+  <div id="bar" class="h-2 rounded-full cursor-pointer mb-2" style="background:var(--line)"><div id="bfill" class="h-2 rounded-full" style="background:var(--acc);width:0"></div></div>
+  <div class="flex items-center gap-2">
+    <button class="pbtn" id="play" title="Reproducir / Pausa">▶</button>
+    <button class="pbtn sec" id="stop" title="Detener">■</button>
+    <span id="pinfo" class="text-xs flex-1 truncate" style="color:var(--mut)">Listo</span>
+    <button class="btn" id="fm" title="Reducir letra">A−</button><button class="btn" id="fp" title="Aumentar letra">A+</button>
+  </div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const L='A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9';
+const WORDS=new RegExp(`([${L}]+(?:['’-][${L}]+)*)|([.,;:?!¡¿…])|(\\s+)|([^\\s])`,'g');
+
+/* ---------- Léxico (heurístico) ---------- */
+const CONN=['sin embargo','por lo tanto','por consiguiente','en consecuencia','además','asimismo','no obstante','por otra parte','por otro lado','en cambio','por ejemplo','es decir','en conclusión','en resumen','por ende','así mismo','de hecho','en primer lugar','en segundo lugar','finalmente','por último','aunque','pero','sino','porque','puesto que','ya que','dado que','debido a','mientras que','a pesar de','con el fin de','para que','por tanto','entonces','así que','de modo que','de manera que','en otras palabras','en efecto','es más','también','tampoco','luego','pues','incluso','por el contrario','en definitiva','a su vez','al mismo tiempo','sobre todo','en cuanto a','respecto a','según','cuando','mientras','siempre que','si bien','de ahí que','por eso','por esto','y','o','ni','que'].filter(c=>!['y','o','ni','que','cuando','según','mientras'].includes(c));
+const CONNRE=new RegExp('(?<![\\p{L}])('+[...CONN].sort((a,b)=>b.length-a.length).map(c=>c.replace(/ /g,'\\s+')).join('|')+')(?![\\p{L}])','giu');
+const DET=new Set('el la los las un una unos unas este esta estos estas ese esa esos esas aquel aquella aquellos aquellas mi tu su mis tus sus nuestro nuestra nuestros nuestras vuestro vuestra algún alguna algunos algunas ningún ninguna ningunos todo toda todos todas otro otra otros otras mucho mucha muchos muchas poco poca pocos pocas varios varias cada cierto cierta ciertos ciertas ambos ambas tanto tanta tantos tantas cualquier demás mismo misma mismos mismas cuyo cuya cuyos cuyas'.split(' '));
+const STOP=new Set('a ante bajo con contra de del desde durante en entre hacia hasta mediante para por según sin sobre tras al yo tú él ella nosotros ellos ellas me te se lo le les nos os mí ti sí que quien quienes cual cuales cuyo donde cuando como cuanto no ni y o u e ya muy más menos tan casi solo sólo aquí allí ahí hoy ayer siempre nunca jamás bien mal así ni qué quién cuál dónde cómo cuándo esto eso aquello ello algo nada alguien nadie'.split(' '));
+const VIRR=new Set('es son fue fueron era eran ha han hay había habían está están estaba estaban estuvo puede pueden podía debe deben tiene tienen tenía hace hacen hizo dice dicen dijo va van iba ve ven vio sea sean ser estar haber tener hacer poder deber decir ir ver dar dio da dan sabe saben quiere quieren viene vienen pone ponen sigue siguen permite permiten'.split(' '));
+const ADJL=new Set('grande grandes pequeño pequeña pequeños pequeñas nuevo nueva nuevos nuevas viejo vieja bueno buena buenos buenas malo mala malos malas importante importantes social sociales crítico crítica críticos críticas general generales principal principales diferente diferentes distinto distinta distintos distintas mejor peor mayor menor largo larga largos largas corto corta alto alta altos altas bajo baja fácil difícil útil posible imposible necesario necesaria necesarios necesarias propio propia propios propias joven jóvenes claro clara claros claras humano humana humanos humanas actual actuales digital digitales científico científica científicos científicas'.split(' '));
+const NSUF=/(ción|ciones|sión|siones|dad|dades|tad|tades|tud|tudes|miento|mientos|ncia|ncias|ismo|ismos|ista|istas|aje|ajes|umbre|ura|uras|eza|ezas|ez|ería|erías|ncio|logía|logías|grafía|torio|dor|dora|dores|doras)$/i;
+const ADJS=/(oso|osa|osos|osas|ivo|iva|ivos|ivas|ble|bles|ico|ica|icos|icas|ental|entales|ario|aria|arios|arias|al|ales|ente|entes|ante|antes|ido|ida|idos|idas)$/i;
+const VERBS=/(ar|er|ir|ando|iendo|ado|ados|ada|adas|aba|abas|aban|ía|ías|ían|ó|aron|ieron|ió|amos|emos|imos|aré|erá|irá|arán|erán|irán|aría|ería|iría|ase|ara|iera|iese|an|en|as|es)$/i;
+function classify(w,prevCat,sentStart,low){
+  if(DET.has(low))return'det'; if(STOP.has(low))return'stop';
+  if(NSUF.test(w)&&w.length>4)return'noun';
+  if(ADJL.has(low))return'adj';
+  if(VIRR.has(low))return'verb';
+  if(prevCat==='det'||prevCat==='adjn'){return ADJS.test(w)&&w.length>5&&!NSUF.test(w)?'adj':'noun'}
+  if(ADJS.test(w)&&w.length>5&&!/(ar|er|ir)$/i.test(w)&&!/(ó|aron|ieron|aba|aban)$/i.test(w))return'adj';
+  if(w.length>3&&VERBS.test(w))return'verb';
+  if(!sentStart&&/^[A-ZÁÉÍÓÚÑ]/.test(w))return'noun';
+  return'other';
+}
+const MODES=[
+ {id:1,n:'Palabra actual',cats:[]},
+ {id:2,n:'Conectores textuales',cats:['conn'],c:'conn'},
+ {id:3,n:'Verbos',cats:['verb'],c:'verb'},
+ {id:4,n:'Puntuación + pausas',cats:['punct'],c:'punct'}];
+
+/* ---------- Estado ---------- */
+const S={tokens:[],text:'',cur:-1,mode:1,playing:false,paused:false,gen:0,hits:0,chunkEnd:0,seen:false,fb:null,voices:[],edit:true,fs:19,cv:new Set(),sv:false,dirty:false};
+const ss=window.speechSynthesis;
+
+function tokenize(text){
+  S.text=text;S.tokens=[];let m,prevCat=null,sentStart=true;
+  const conn=[];const cre=connRe();cre.lastIndex=0;while((m=cre.exec(text)))conn.push([m.index,m.index+m[0].length]);
+  WORDS.lastIndex=0;
+  while((m=WORDS.exec(text))){
+    const t={t:m[0],s:m.index,e:m.index+m[0].length,type:m[1]?'w':m[2]?'p':m[3]?'s':'o',cat:'other'};
+    if(t.type==='w'){const low=t.t.toLowerCase();t.cat=classify(t.t,prevCat,sentStart,low);
+      prevCat=t.cat==='det'?'det':'x';sentStart=false;
+      if(conn.some(r=>t.s>=r[0]&&t.s<r[1]))t.conn=true}
+    else if(t.type==='p'){t.cat='punct';sentStart=/[.?!…]/.test(t.t);prevCat=null}
+    S.tokens.push(t)}
+}
+function render(){
+  $('#reader').innerHTML=S.tokens.map((t,i)=>t.type==='s'?t.t:`<span class="tok" data-i="${i}">${esc(t.t)}</span>`).join('');
+  S.els=[];[...$('#reader').children].forEach(e=>S.els[+e.dataset.i]=e);S.cur=-1;S.hits=0;$('#hits').textContent=0;prog(0);
+}
+const tokEls=()=>$('#reader').children;
+/* Listas del usuario (conectores y verbos) */
+const parseList=s=>[...new Set(s.split(/[,;\n]+/).map(x=>x.trim().toLowerCase().replace(/\s+/g,' ')).filter(Boolean))];
+const escRe=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+function connRe(){
+  const all=[...new Set([...($('#soloC').checked?[]:CONN),...parseList($('#cConn').value)])];
+  if(!all.length)return /(?!)/g;
+  return new RegExp('(?<![\\p{L}])('+all.sort((a,b)=>b.length-a.length).map(c=>escRe(c).replace(/ /g,'\\s+')).join('|')+')(?![\\p{L}])','giu')}
+function syncLists(){
+  const s=new Set();parseList($('#cVerb').value).forEach(v=>v.split(' ').forEach(w=>s.add(w)));
+  S.cv=s;S.sv=$('#soloV').checked;S.dirty=true;
+  if(!S.playing&&!S.edit&&S.tokens.length){tokenize($('#editor').value);render();S.dirty=false}}
+['#cConn','#soloC','#cVerb','#soloV'].forEach(id=>['input','change'].forEach(ev=>$(id).addEventListener(ev,syncLists)));
+function hitClass(t){
+  if(S.mode===2)return t.conn?'h-conn':null;
+  if(S.mode===3)return t.type==='w'&&(S.cv.has(t.t.toLowerCase())||(!S.sv&&t.cat==='verb'))?'h-verb':null;
+  if(S.mode===4)return t.type==='p'?'h-punct':null;
+  return null}
+function clearMarks(){[...tokEls()].forEach(e=>{if(e.className)e.className='tok'});S.hits=0;$('#hits').textContent=0}
+function applyRange(from,to){
+  const els=tokEls();let lastWord=-1;
+  for(let i=from;i<=to&&i<S.tokens.length;i++){const t=S.tokens[i];if(t.type==='s')continue;
+    const el=S.els[i];if(!el)continue;
+    const h=hitClass(t);if(h&&!el.classList.contains(h)){el.classList.add(h);S.hits++}
+    if(t.type==='w')lastWord=i}
+  $('#hits').textContent=S.hits;return lastWord}
+function setNow(i){
+  const els=tokEls();const o=$('#reader .now');if(o)o.classList.remove('now');
+  const el=S.els[i];if(el){el.classList.add('now');
+    const r=el.getBoundingClientRect();if(r.bottom>innerHeight-170||r.top<80)el.scrollIntoView({block:'center',behavior:'smooth'})}}
+function tokAt(ch){let lo=0,hi=S.tokens.length-1,r=0;
+  while(lo<=hi){const m=(lo+hi)>>1;if(S.tokens[m].s<=ch){r=m;lo=m+1}else hi=m-1}return r}
+function advance(ch){
+  const i=tokAt(ch);if(i<=S.cur)return;
+  const w=applyRange(S.cur+1,i);S.cur=i;
+  let k=i;while(k<S.tokens.length&&S.tokens[k].type!=='w')k++;setNow(Math.min(k,S.tokens.length-1));
+  prog(S.tokens[i].s/Math.max(1,S.text.length));
+}
+function prog(r){$('#bfill').style.width=(r*100)+'%'}
+
+/* ---------- Segmentación y TTS ---------- */
+function chunks(from){
+  const txt=S.text.slice(from),out=[];
+  const re=S.mode===4?/[^.,;:?!\n]+[.,;:?!]*\s*|\n+/g:/[^.?!\n]+[.?!]*\s*|\n+/g;let m;
+  while((m=re.exec(txt))){
+    let s=m[0];const off=from+m.index;
+    if(!s.trim())continue;
+    if(s.length>240&&S.mode!==4){const parts=s.match(/[^,;:]+[,;:]*\s*/g)||[s];let o=off;parts.forEach(p=>{out.push({text:p,off:o,gap:0});o+=p.length})}
+    else out.push({text:s,off:off,gap:S.mode===4?gapFor(s):0})}
+  return out}
+function gapFor(s){const t=s.trim(),c=t.slice(-1),nl=/\n$/.test(s);
+  return /[.?!]/.test(c)?650:/[;:]/.test(c)?450:c===','?280:0}
+let CH=[],CI=0;
+function speak(){
+  const gen=S.gen;if(CI>=CH.length){finish();return}
+  const c=CH[CI],u=new SpeechSynthesisUtterance(c.text);
+  const v=S.voices.find(x=>x.voiceURI===$('#voice').value);if(v){u.voice=v;u.lang=v.lang}else u.lang='es-ES';
+  u.rate=+$('#rate').value;u.volume=+$('#vol').value;
+  S.seen=false;clearInterval(S.fb);
+  u.onstart=()=>{setTimeout(()=>{if(gen!==S.gen||S.seen)return;
+    S.fb=setInterval(()=>{if(gen!==S.gen||S.paused)return;
+      let k=S.cur+1;while(k<S.tokens.length&&(S.tokens[k].type!=='w'||S.tokens[k].s<c.off))k++;
+      if(k>=S.tokens.length||S.tokens[k].s>=c.off+c.text.length){clearInterval(S.fb);return}advance(S.tokens[k].s)},60000/(165*u.rate))},500)};
+  u.onboundary=e=>{if(gen!==S.gen)return;if(e.name&&e.name!=='word')return;S.seen=true;clearInterval(S.fb);advance(c.off+e.charIndex)};
+  u.onend=()=>{if(gen!==S.gen)return;clearInterval(S.fb);
+    const endTok=tokAt(c.off+c.text.length-1);advance(S.tokens[endTok].s);
+    const last=tokAt(c.off+c.text.length);applyRange(S.cur+1,last);S.cur=Math.max(S.cur,last);
+    CI++;const g=c.gap/ +$('#rate').value;
+    if(g>0)setTimeout(()=>{if(gen===S.gen)speak()},g);else speak()};
+  u.onerror=e=>{if(gen!==S.gen)return;if(e.error==='interrupted'||e.error==='canceled')return;CI++;speak()};
+  ss.speak(u);
+}
+function playFrom(ch){
+  ss.cancel();S.gen++;clearInterval(S.fb);
+  if(S.edit)showReader();
+  if(S.text!==$('#editor').value||S.dirty){tokenize($('#editor').value);render();S.dirty=false}
+  if(!S.text.trim()){info('Escribe o carga un texto primero');return}
+  clearMarks();S.cur=-1;
+  if(ch>0){const i=tokAt(ch);const w=applyRange(0,i);S.cur=i}
+  CH=chunks(ch);CI=0;S.playing=true;S.paused=false;$('#play').textContent='⏸';info('Leyendo…');speak()}
+function togglePlay(){
+  if(!S.playing){playFrom(0);return}
+  if(S.paused){ss.resume();S.paused=false;$('#play').textContent='⏸';info('Leyendo…')}
+  else{ss.pause();S.paused=true;$('#play').textContent='▶';info('En pausa')}}
+function stopAll(){ss.cancel();S.gen++;clearInterval(S.fb);S.playing=false;S.paused=false;$('#play').textContent='▶';
+  clearMarks();const o=$('#reader .now');if(o)o.classList.remove('now');S.cur=-1;prog(0);info('Detenido')}
+function finish(){S.playing=false;$('#play').textContent='▶';prog(1);info('Lectura completa · '+S.hits+' elementos resaltados')}
+function info(t){$('#pinfo').textContent=t}
+
+/* ---------- Voces ---------- */
+const FEM=/female|mujer|helena|laura|sabina|paulina|m[oó]nica|luc[ií]a|elena|marisol|dalia|elvira|camila|paloma|salom[eé]|valentina|catalina|sof[ií]a|zira|mar[ií]a|paola|ximena|lupe|esperanza|marta|isabela|ana\b/i;
+const MAS=/\bmale\b|hombre|jorge|diego|pablo|ra[uú]l|juan|carlos|[aá]lvaro|jaime|andr[eé]s|enrique|miguel|tom[aá]s|alonso|gonzalo|luis|ricardo|guillermo|sergio|pedro|jos[eé]|manuel/i;
+function loadVoices(){
+  let all=ss.getVoices();if(!all.length)return;
+  let es=all.filter(v=>/^es/i.test(v.lang));if(!es.length){es=all;$('#vNote').textContent='No hay voces en español en este dispositivo; se muestran todas.'}
+  S.voices=es;const g={f:[],m:[],o:[]};
+  es.forEach(v=>(FEM.test(v.name)&&!MAS.test(v.name)?g.f:MAS.test(v.name)?g.m:g.o).push(v));
+  const opt=v=>`<option value="${esc(v.voiceURI)}">${esc(v.name)} (${esc(v.lang)})</option>`;
+  const grp=(n,a)=>a.length?`<optgroup label="${n}">${a.map(opt).join('')}</optgroup>`:'';
+  const prev=$('#voice').value;
+  $('#voice').innerHTML=grp('Femeninas',g.f)+grp('Masculinas',g.m)+grp('Otras / sin género identificado',g.o);
+  if(prev)$('#voice').value=prev;S.groups=g;
+  $('#vF').disabled=!g.f.length;$('#vM').disabled=!g.m.length;
+  if(!$('#vNote').textContent)$('#vNote').textContent='El género se deduce del nombre de la voz; depende de tu sistema operativo.'}
+if(ss){loadVoices();ss.onvoiceschanged=loadVoices}else info('Tu navegador no soporta síntesis de voz');
+$('#vF').onclick=()=>{if(S.groups.f[0])$('#voice').value=S.groups.f[0].voiceURI};
+$('#vM').onclick=()=>{if(S.groups.m[0])$('#voice').value=S.groups.m[0].voiceURI};
+
+/* ---------- UI lectura ---------- */
+$('#modes').innerHTML=MODES.map(m=>`<label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="mode" value="${m.id}" ${m.id===1?'checked':''}><span>${m.id}. ${m.n}</span>${m.id===6?'<span><i class="sw" style="background:var(--c-adj)"></i><i class="sw" style="background:var(--c-det)"></i></span>':m.c?`<i class="sw" style="background:var(--c-${m.c})"></i>`:''}</label>`).join('');
+$$('input[name=mode]').forEach(r=>r.onchange=()=>{
+  S.mode=+r.value;$('#reader').className='mode-'+S.mode;
+  if(S.playing){const ch=S.cur>=0?S.tokens[S.cur].s:0;const was=S.paused;playFrom(ch);if(was)togglePlay()}
+  else{clearMarks()}});
+$('#rate').oninput=e=>$('#rateV').textContent=(+e.target.value).toFixed(1)+'×';
+$('#vol').oninput=e=>$('#volV').textContent=Math.round(e.target.value*100)+'%';
+$('#preview').onclick=()=>{if(S.playing)return;showReader();clearMarks();applyRange(0,S.tokens.length-1);info('Vista previa: '+S.hits+' elementos resaltados')};
+$('#play').onclick=togglePlay;$('#stop').onclick=stopAll;
+$('#fm').onclick=()=>{S.fs=Math.max(13,S.fs-2);$('#reader').style.fontSize=S.fs+'px';$('#editor').style.fontSize=S.fs+'px'};
+$('#fp').onclick=()=>{S.fs=Math.min(40,S.fs+2);$('#reader').style.fontSize=S.fs+'px';$('#editor').style.fontSize=S.fs+'px'};
+$('#bar').onclick=e=>{const r=e.currentTarget.getBoundingClientRect();if(!S.text.trim())return;
+  const ch=Math.floor(((e.clientX-r.left)/r.width)*S.text.length);const k=tokAt(ch);playFrom(S.tokens[k]?S.tokens[k].s:0)};
+$('#reader').onclick=e=>{const el=e.target.closest('.tok');if(el)playFrom(S.tokens[+el.dataset.i].s)};
+function showReader(){
+  if(S.text!==$('#editor').value||!S.tokens.length||S.dirty){tokenize($('#editor').value);render();S.dirty=false}
+  S.edit=false;$('#editor').classList.add('hidden');$('#reader').classList.remove('hidden');$('#toggleView').textContent='✎ Editar'}
+function showEditor(){stopAll();S.edit=true;$('#reader').classList.add('hidden');$('#editor').classList.remove('hidden');$('#toggleView').textContent='👁 Leer';$('#editor').focus()}
+$('#toggleView').onclick=()=>S.edit?showReader():showEditor();
+$('#clearTxt').onclick=()=>{stopAll();$('#editor').value='';tokenize('');render();showEditor()};
+$('#editor').value='La lectura crítica exige algo más que decodificar palabras. Por ejemplo, un lector atento identifica las ideas centrales, evalúa los argumentos del autor y, además, relaciona lo leído con su propia experiencia. Sin embargo, muchos estudiantes leen rápidamente y olvidan los datos importantes; por lo tanto, conviene releer, subrayar y escribir resúmenes breves.\n\nEscribe o pega tu propio texto, o carga un archivo .txt o .pdf.';
+showReader();
+
+/* ---------- Carga de archivos ---------- */
+$('#file').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;const st=$('#status');st.textContent='Cargando…';stopAll();
+  try{let txt='';
+    if(/\.pdf$/i.test(f.name)||f.type==='application/pdf'){
+      if(!window.pdfjsLib)throw new Error('pdf.js no se cargó');
+      pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      const pdf=await pdfjsLib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise;
+      for(let p=1;p<=pdf.numPages;p++){const tc=await (await pdf.getPage(p)).getTextContent();
+        txt+=tc.items.map(i=>i.str+(i.hasEOL?'\n':' ')).join('')+'\n\n';st.textContent=`Página ${p}/${pdf.numPages}`}
+      txt=txt.replace(/-\n(?=[a-záéíóúñ])/g,'').replace(/[ \t]+/g,' ').replace(/ ?\n ?/g,'\n').trim()}
+    else txt=await f.text();
+    $('#editor').value=txt;tokenize(txt);render();showReader();st.textContent=f.name+' · '+txt.length+' caracteres'}
+  catch(err){st.textContent='No se pudo leer el archivo: '+err.message}
+  e.target.value=''};
+
+/* ---------- Pestañas ---------- */
+$$('[data-view]').forEach(b=>b.onclick=()=>{$$('[data-view]').forEach(x=>x.classList.toggle('on',x===b));
+  $('#v-lectura').classList.toggle('hidden',b.dataset.view!=='lectura');$('#v-analisis').classList.toggle('hidden',b.dataset.view!=='analisis')});
+$$('[data-sec]').forEach(b=>b.onclick=()=>{$$('[data-sec]').forEach(x=>x.classList.toggle('on',x===b));
+  ['s1','s2','s3'].forEach(id=>$('#'+id).classList.toggle('hidden',id!==b.dataset.sec))});
+
+/* ---------- Tablas dinámicas ---------- */
+function rowHtml(n){return '<tr>'+Array.from({length:n},()=>'<td><textarea class="fld" rows="2"></textarea></td>').join('')+'<td style="width:2rem"><button class="btn" title="Quitar fila">✕</button></td></tr>'}
+$$('[data-table]').forEach(box=>{
+  const cols=box.dataset.cols.split('|');
+  box.innerHTML=`<div class="flex items-center justify-between mb-1"><h3 class="font-medium text-sm">${box.dataset.label}</h3><button class="btn" data-add>＋ Agregar fila</button></div><table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}<th></th></tr></thead><tbody></tbody></table>`;
+  const tb=box.querySelector('tbody');
+  const add=()=>tb.insertAdjacentHTML('beforeend',rowHtml(cols.length));
+  box.querySelector('[data-add]').onclick=add;
+  tb.onclick=e=>{const b=e.target.closest('button');if(b)b.closest('tr').remove()};
+  add()});
+
+/* ---------- Exportación ---------- */
+function collect(){
+  const data=[];
+  $$('#v-analisis [data-title]').forEach(sec=>{
+    const items=[],seenR=new Set();
+    sec.querySelectorAll('[data-f],[data-table]').forEach(el=>{
+      if(el.matches('[data-table]')){
+        const heads=[...el.querySelectorAll('th')].map(h=>h.textContent).filter(Boolean);
+        const rows=[...el.querySelectorAll('tbody tr')].map(r=>[...r.querySelectorAll('textarea')].map(t=>t.value.trim())).filter(r=>r.some(Boolean));
+        items.push({label:el.dataset.label,table:{heads,rows}})}
+      else if(el.type==='radio'){if(seenR.has(el.name))return;seenR.add(el.name);
+        const c=sec.querySelector(`input[name=${el.name}]:checked`);items.push({label:el.dataset.label,value:c?c.value:''})}
+      else items.push({label:el.dataset.label||el.placeholder,value:el.value.trim()})});
+    data.push({title:sec.dataset.title,items})});
+  return data}
+function reportHtml(){
+  const d=collect(),date=new Date().toLocaleDateString('es-CO',{dateStyle:'long'});
+  let h=`<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>Informe de lectura</title><style>body{font-family:Georgia,serif;max-width:800px;margin:2rem auto;padding:0 1rem;color:#222;line-height:1.6}h1{border-bottom:2px solid #b5651d;padding-bottom:.3rem}h2{color:#b5651d;margin-top:2rem}h3{margin-bottom:.2rem;font-size:1rem}.t{white-space:pre-wrap;background:#faf6ee;border:1px solid #e4dac8;padding:1rem;border-radius:8px}table{width:100%;border-collapse:collapse;margin:.5rem 0 1rem}td,th{border:1px solid #ccc;padding:.4rem;text-align:left;vertical-align:top;white-space:pre-wrap}th{background:#f3e3cf}p{margin:.2rem 0 .8rem;white-space:pre-wrap}@media print{body{margin:0}}</style></head><body><h1>Informe de lectura y escritura académica</h1><p><em>${date}</em></p><h2>Texto analizado</h2><div class="t">${esc($('#editor').value)}</div>`;
+  d.forEach(s=>{h+=`<h2>${esc(s.title)}</h2>`;s.items.forEach(i=>{
+    if(i.table){h+=`<h3>${esc(i.label)}</h3>`+(i.table.rows.length?`<table><tr>${i.table.heads.map(x=>`<th>${esc(x)}</th>`).join('')}</tr>${i.table.rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table>`:'<p>—</p>')}
+    else h+=`<h3>${esc(i.label)}</h3><p>${esc(i.value)||'—'}</p>`})});
+  return h+'</body></html>'}
+function reportTxt(){
+  const d=collect(),line='='.repeat(60);
+  let t=`INFORME DE LECTURA Y ESCRITURA ACADÉMICA\n${new Date().toLocaleDateString('es-CO',{dateStyle:'long'})}\n${line}\n\nTEXTO ANALIZADO\n${$('#editor').value}\n`;
+  d.forEach(s=>{t+=`\n${line}\n${s.title.toUpperCase()}\n${line}\n`;s.items.forEach(i=>{
+    if(i.table){t+=`\n# ${i.label}\n`;i.table.rows.forEach((r,k)=>{t+=`  ${k+1}. ${i.table.heads.map((h,j)=>`${h}: ${r[j]||'—'}`).join('\n     ')}\n`});if(!i.table.rows.length)t+='  —\n'}
+    else t+=`\n# ${i.label}\n${i.value||'—'}\n`})});return t}
+async function save(name,data){
+  try{const dl=await claude.use('downloads');if(!dl)throw 0;await dl.save({filename:name,data});flash('Archivo listo')}
+  catch(e){if(e&&e.code==='declined')return;const w=window.open('','_blank');
+    if(w&&name.endsWith('.html')){w.document.write(data);w.document.close()}
+    else{navigator.clipboard&&navigator.clipboard.writeText(data).then(()=>flash('Copiado al portapapeles'),()=>flash('No se pudo descargar en esta vista'))}}}
+function flash(m){const s=$('#status');s.textContent=m;setTimeout(()=>s.textContent='',3000)}
+$('#expHtml').onclick=()=>save('informe-lectura.html',reportHtml());
+$('#expTxt').onclick=()=>save('informe-lectura.txt',reportTxt());
+</script>
+</body>
+</html>
