@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lógica en juego: silogismos y entimemas</title>
+<style>
+:root{--bg:#f7f7fb;--fg:#1d1d2b;--cd:#fff;--bd:#d9d9e6;--ac:#6d4aff;--mu:#5b5b70;--ok:#0d8a5f;--ko:#c0392b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14141c;--fg:#ececf5;--cd:#1e1e2a;--bd:#34344a;--ac:#9b84ff;--mu:#a3a3bb;--ok:#3ddc97;--ko:#ff7b6b}}
+:root[data-theme="dark"]{--bg:#14141c;--fg:#ececf5;--cd:#1e1e2a;--bd:#34344a;--ac:#9b84ff;--mu:#a3a3bb;--ok:#3ddc97;--ko:#ff7b6b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:820px;margin:0 auto;padding:1rem}
+h1{font-size:1.5rem;margin:.2rem 0}.sub{color:var(--mu);margin:0 0 1rem}
+nav{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem}
+nav button,.btn{border:1px solid var(--bd);background:var(--cd);color:var(--fg);padding:.5rem .9rem;border-radius:999px;font:inherit;cursor:pointer}
+nav button.on,.btn{background:var(--ac);color:#fff;border-color:var(--ac)}
+section{display:none}section.on{display:block}
+.box{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:1rem;margin:.7rem 0}
+.frase{border:1px solid var(--ac);border-radius:12px;padding:1rem;font-size:1.1rem;background:var(--cd)}
+.card{border-left:6px solid;border-radius:10px;padding:.6rem .9rem;margin:.45rem 0;background:var(--cd)}
+.card small{font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--mu)}.card p{margin:.1rem 0 0}
+.m{border-color:#3b82f6}.n{border-color:#10b981}.c{border-color:#f59e0b}
+.imp{border-style:dashed;border-width:2px 2px 2px 6px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:1rem}@media(max-width:640px){.cols{grid-template-columns:1fr}}
+select{width:100%;padding:.6rem;font:inherit;border-radius:8px;border:1px solid var(--bd);background:var(--cd);color:var(--fg)}
+fieldset{border:0;padding:0;margin:.8rem 0}legend{font-weight:600;margin-bottom:.2rem}
+label{display:inline-block;margin:.15rem 1rem .15rem 0;cursor:pointer}
+.fb{margin:.3rem 0}.fb.ok{color:var(--ok)}.fb.ko{color:var(--ko)}
+.score{float:right;font-weight:700;color:var(--ac)}
+</style>
+</head>
+<body>
+<main>
+<h1>🧩 Lógica en juego <span class="score" id="sc">0 / 0</span></h1>
+<p class="sub">Descompón silogismos y entimemas de la vida diaria y lee con ojo crítico.</p>
+<nav id="nav"><button data-t="a" class="on">📘 Aprende</button><button data-t="d">🔍 Descompón</button><button data-t="l">📚 Leer moldea</button></nav>
+
+<section id="a" class="on">
+<div class="cols">
+<div><h3>Silogismo</h3><p>Tres partes completas: regla general, caso concreto y conclusión.</p>
+<div class="card m"><small>Premisa mayor</small><p>Todas las apps de domicilios cobran comisión.</p></div>
+<div class="card n"><small>Premisa menor</small><p>Rappi es una app de domicilios.</p></div>
+<div class="card c"><small>Conclusión</small><p>Rappi cobra comisión.</p></div></div>
+<div><h3>Entimema</h3><p>Silogismo abreviado: algo se da por sentado y quien lee lo completa.</p>
+<div class="card n"><small>Premisa menor</small><p>Está cayendo un aguacero fuerte.</p></div>
+<div class="card m imp"><small>Premisa mayor · implícita</small><p>Cuando llueve fuerte, conviene llevar paraguas.</p></div>
+<div class="card c"><small>Conclusión</small><p>Llevemos paraguas.</p></div></div>
+</div>
+<div class="box"><b>🧠 Silogismos:</b> estructuran el pensamiento, preservan la verdad si las premisas son verdaderas, dan rigor académico y facilitan detectar falacias.<br><br>
+<b>🗣️ Entimemas:</b> agilizan y economizan el lenguaje, persuaden porque el público completa la idea, pero pueden manipular si la premisa oculta es falsa.<br><br>
+<b>💡 Truco:</b> pregúntate «¿qué tendría que ser cierto para que esto tenga sentido?» y luego «¿de verdad lo es?».</div>
+</section>
+
+<section id="d">
+<select id="sel"></select>
+<div class="frase" id="txt" style="margin-top:.8rem"></div>
+<form class="box" id="f"></form>
+<div id="res"></div>
+</section>
+
+<section id="l">
+<div class="frase">Lo que leemos moldea nuestro vocabulario, nuestro pensamiento y nuestra manera de expresarnos, tanto al hablar como al escribir.</div>
+<div id="lc"></div>
+<div class="box"><b>🧱 El lenguaje se nutre de referentes:</b> mientras más y mejor leemos, más estructuras gramaticales, ideas y matices incorporamos a nuestro repertorio mental.<br><br>
+<b>🗣️ La expresión oral refleja el léxico:</b> al hablar recurrimos, casi sin darnos cuenta, a palabras, dichos y tonos asimilados de los libros y del entorno.<br><br>
+<b>✍️ La escritura es lectura en pausa:</b> al escribir organizamos con calma el archivo de palabras que hemos acumulado, dándole forma y claridad al mensaje.</div>
+</section>
+</main>
+<script>
+const L={m:"Premisa mayor",n:"Premisa menor",c:"Conclusión"};
+// t: S silogismo / E entimema; o: parte omitida; v: forma válida; r: premisas se sostienen
+const E=[
+{t:"S",h:"La comisión de la app",x:"Parce, todas las apps de domicilios cobran comisión. Rappi es una app de domicilios. O sea, Rappi cobra comisión.",m:"Todas las apps de domicilios cobran comisión.",n:"Rappi es una app de domicilios.",c:"Rappi cobra comisión.",o:"",v:1,r:1,z:"Regla general → caso concreto → conclusión necesaria."},
+{t:"S",h:"El influencer sabelotodo",x:"Todo el que tiene millones de seguidores sabe de lo que habla. Sofi tiene millones de seguidores. Entonces Sofi sabe de lo que habla.",m:"Todo el que tiene millones de seguidores sabe de lo que habla.",n:"Sofi tiene millones de seguidores.",c:"Sofi sabe de lo que habla.",o:"",v:1,r:0,z:"Forma válida, premisa mayor falsa: válido no es lo mismo que verdadero."},
+{t:"S",h:"El script que se cae",x:"Todo programa sin manejo de errores se cae con datos raros. Mi script no maneja errores. Por lo tanto, mi script se cae con datos raros.",m:"Todo programa sin manejo de errores se cae con datos raros.",n:"Mi script no maneja errores.",c:"Mi script se cae con datos raros.",o:"",v:1,r:1,z:"Los silogismos también ordenan el razonamiento técnico."},
+{t:"S",h:"Ingeniería y programar",x:"Todos los estudiantes de ingeniería saben programar. Juan sabe programar. Entonces Juan estudia ingeniería.",m:"Todos los estudiantes de ingeniería saben programar.",n:"Juan sabe programar.",c:"Juan estudia ingeniería.",o:"",v:0,r:0,z:"Falla de forma (afirmar el consecuente): Juan puede ser autodidacta o venir de otra carrera."},
+{t:"S",h:"Lo que leemos nos moldea",x:"Todo lo que alimenta nuestro repertorio de palabras e ideas moldea cómo pensamos y nos expresamos. Lo que leemos alimenta ese repertorio. Entonces, lo que leemos moldea nuestro vocabulario, nuestro pensamiento y nuestra manera de hablar y escribir.",m:"Todo lo que alimenta nuestro repertorio de palabras e ideas moldea cómo pensamos y nos expresamos.",n:"Lo que leemos alimenta ese repertorio.",c:"Lo que leemos moldea nuestro vocabulario, pensamiento y manera de hablar y escribir.",o:"",v:1,r:1,z:"El argumento central del curso: leer es materia prima del pensamiento."},
+{t:"E",h:"El paraguas",x:"Está cayendo un aguacero tenaz, mejor llevemos paraguas.",m:"Cuando llueve fuerte, conviene llevar paraguas.",n:"Está cayendo un aguacero fuerte.",c:"Conviene llevar paraguas.",o:"m",v:1,r:1,z:"Nadie dice la regla general porque todos la damos por sentada."},
+{t:"E",h:"El combo más vendido",x:"Ese combo es el más vendido de la plaza, seguro es buenísimo.",m:"Todo lo más vendido es bueno.",n:"Ese combo es el más vendido.",c:"Ese combo es bueno.",o:"m",v:1,r:0,z:"Riesgo de manipulación: la premisa oculta es falsa (popular no siempre es bueno)."},
+{t:"E",h:"Lo vi en TikTok",x:"Lo vi en TikTok con un millón de likes, así que es verdad.",m:"Todo lo que tiene millones de likes es verdad.",n:"Eso tiene un millón de likes.",c:"Eso es verdad.",o:"m",v:1,r:0,z:"La desinformación vive en las premisas ocultas: complétalas antes de aceptarlas."},
+{t:"E",h:"Valentina escribe bonito",x:"Quien lee mucho escribe mejor; por eso Valentina escribe tan bien.",m:"Quien lee mucho escribe mejor.",n:"Valentina lee mucho.",c:"Valentina escribe bien.",o:"n",v:1,r:0,z:"La premisa menor es un supuesto que falta verificar: quizá escribe bien por práctica o por buenos profes."},
+{t:"E",h:"El taller tardío",x:"Todo taller entregado después del cierre pierde puntos, y el tuyo lo subiste después del cierre, parce…",m:"Todo taller entregado después del cierre pierde puntos.",n:"Tu taller lo subiste después del cierre.",c:"Tu taller pierde puntos.",o:"c",v:1,r:1,z:"Aquí lo omitido es la conclusión: el silencio hace que tú la completes."},
+{t:"E",h:"Vocabulario en pausa",x:"Quien no lee no amplía su vocabulario, y tú hace meses que no abres un libro.",m:"Quien no lee no amplía su vocabulario.",n:"Tú hace meses que no lees.",c:"Tu vocabulario no se está ampliando.",o:"c",v:1,r:1,z:"La conclusión implícita pega más fuerte: por eso persuaden los entimemas."},
+{t:"E",h:"Camilo suelta buenas palabras",x:"Camilo suelta unas palabras buenísimas al hablar; se nota que lee harto.",m:"Quien lee harto habla con léxico variado.",n:"Camilo habla con léxico variado.",c:"Camilo lee harto.",o:"m",v:0,r:1,z:"Trampa: afirma el consecuente. El léxico también viene del entorno, los podcasts o la familia."}
+];
+const $=s=>document.querySelector(s);let pts={};
+const card=(k,e)=>`<div class="card ${k}${e.o===k?' imp':''}"><small>${L[k]}${e.o===k?' · implícita (tú la completas)':''}</small><p>${e[k]}</p></div>`;
+const parts=e=>card("m",e)+card("n",e)+card("c",e);
+$("#lc").innerHTML="<h3>El argumento, descompuesto</h3>"+parts(E[4]);
+$("#sel").innerHTML=E.map((e,i)=>`<option value="${i}">${e.t=="S"?"🔗 Silogismo":"✂️ Entimema"} · ${e.h}</option>`).join("");
+function score(){let a=0,b=0;for(const k in pts){a+=pts[k][0];b+=pts[k][1]}$("#sc").textContent=a+" / "+b}
+function show(){const i=+$("#sel").value,e=E[i];$("#txt").textContent="“"+e.x+"”";$("#res").innerHTML="";
+const rd=(n,q,o)=>`<fieldset><legend>${q}</legend>${o.map((t,j)=>`<label><input type="radio" name="${n}" value="${j}"> ${t}</label>`).join("")}</fieldset>`;
+$("#f").innerHTML="<b>Analiza antes de ver la respuesta</b>"+(e.t=="E"?rd("q1","¿Qué parte quedó implícita?",["Premisa mayor","Premisa menor","Conclusión"]):"")+
+rd("q2","¿La forma del razonamiento es válida?",["Sí, se sigue","No, hay una falla"])+rd("q3","¿Las premisas se sostienen en la vida real?",["Sí","No o son discutibles"])+`<button class="btn" type="submit">Comprobar ✅</button>`}
+$("#sel").onchange=show;
+$("#f").onsubmit=ev=>{ev.preventDefault();const i=+$("#sel").value,e=E[i],g=n=>{const x=document.querySelector(`input[name=${n}]:checked`);return x?+x.value:-1};
+const a=g("q1"),b=g("q2"),c=g("q3");if((e.t=="E"&&a<0)||b<0||c<0){$("#res").innerHTML='<p class="fb ko">Responde todas las preguntas.</p>';return}
+let p=0,mx=2,h="";const f=(ok,t)=>{if(ok)p++;h+=`<p class="fb ${ok?"ok":"ko"}">${ok?"✅":"❌"} ${t}</p>`};
+if(e.t=="E"){mx=3;const k=["m","n","c"][a];f(k===e.o,k===e.o?"Identificaste la parte implícita.":"La parte implícita era la "+L[e.o].toLowerCase()+".")}
+f((b==0)===!!e.v,e.v?"La forma es válida.":"La forma tiene una falla lógica.");
+f((c==0)===!!e.r,e.r?"Las premisas se sostienen.":"Las premisas son falsas o discutibles.");
+if(!pts[i]){pts[i]=[p,mx];score()}
+$("#res").innerHTML=h+"<h3>Así se descompone</h3>"+parts(e)+`<div class="box">📝 ${e.z}</div>`};
+$("#nav").onclick=ev=>{const t=ev.target.dataset.t;if(!t)return;document.querySelectorAll("nav button,section").forEach(x=>x.classList.remove("on"));ev.target.classList.add("on");$("#"+t).classList.add("on")};
+show();
+</script>
+</body>
+</html>
