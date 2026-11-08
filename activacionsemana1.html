@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ingeniería Inversa de Textos</title>
+<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']]},options:{skipHtmlTags:['script','style','textarea']}};</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--ink:#22252b;--mut:#6b7280;--acc:#1f4e79;--line:#dcd9d0;--cn:#ffe08a;--pn:#ffb3b3;--kw:#a8e6a1;--kar:#6fb7ff}
+@media(prefers-color-scheme:dark){:root{--bg:#16181c;--card:#1f2228;--ink:#e6e6e6;--mut:#9aa1ac;--acc:#7fb2e5;--line:#33373f;--cn:#6b5a12;--pn:#6b2a2a;--kw:#2d5a2a;--kar:#1d5a96}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Georgia,'Times New Roman',serif}
+header{padding:16px 20px;border-bottom:1px solid var(--line);background:var(--card)}
+header h1{margin:0;font-size:1.25rem;color:var(--acc)}
+header p{margin:2px 0 0;color:var(--mut);font:.85rem system-ui,sans-serif}
+.tabs{display:flex;gap:4px;padding:10px 20px 0;font-family:system-ui,sans-serif;flex-wrap:wrap}
+.tab{padding:9px 16px;border:1px solid var(--line);border-bottom:none;border-radius:8px 8px 0 0;background:var(--bg);cursor:pointer;color:var(--mut)}
+.tab.on{background:var(--card);color:var(--acc);font-weight:600}
+main{padding:0 20px 40px}
+.pane{display:none;background:var(--card);border:1px solid var(--line);padding:16px;border-radius:0 8px 8px 8px}
+.pane.on{display:block}
+.layout{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:16px}
+@media(max-width:960px){.layout{grid-template-columns:minmax(0,1fr)}}
+.ctrl{font:.88rem system-ui,sans-serif;display:flex;flex-direction:column;gap:10px}
+.ctrl fieldset{border:1px solid var(--line);border-radius:8px;padding:10px;margin:0}
+.ctrl legend{font-weight:600;color:var(--acc);padding:0 4px}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:4px 0}
+button,select,input[type=text],textarea{font:inherit;font-family:system-ui,sans-serif}
+button{padding:6px 12px;border:1px solid var(--acc);background:var(--acc);color:#fff;border-radius:6px;cursor:pointer}
+button.sec{background:transparent;color:var(--acc)}
+select,input[type=text]{padding:6px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);width:100%}
+.sw{display:flex;align-items:center;gap:8px;cursor:pointer}
+.reader{max-height:520px;overflow:auto;padding:14px 18px;border:1px solid var(--line);border-radius:8px;font-size:1.08rem;line-height:1.9}
+.reader p{margin:0 0 1em}
+.w{cursor:pointer;border-radius:3px}
+.w:hover{background:rgba(31,78,121,.12)}
+.cn-on .w.cn{background:var(--cn)}
+.kw-on .w.kw{background:var(--kw);font-weight:700}
+.pun-on .pc{background:var(--pn);border-radius:3px;font-weight:700;padding:0 1px}
+.w.cur{background:var(--kar)!important;outline:2px solid var(--kar)}
+.note{font:.8rem system-ui,sans-serif;color:var(--mut);margin-top:6px}
+.steps{margin-top:20px;display:grid;gap:14px}
+.step{border:1px solid var(--line);border-radius:8px;padding:12px;font-family:system-ui,sans-serif}
+.step h3{margin:0 0 8px;font-size:1rem;color:var(--acc)}
+.step textarea{width:100%;min-height:90px;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);resize:vertical}
+.fb{display:none;margin-top:10px;padding:12px;border-left:4px solid var(--acc);background:rgba(31,78,121,.07);border-radius:0 6px 6px 0}
+.fb.on{display:block}
+.fb h4{margin:0 0 6px}
+.pend{color:#b45309;font-style:italic}
+.layout>*,.ctrl,.ctrl fieldset,.ctrl label{min-width:0}
+.ctrl input,.ctrl select,.ctrl textarea{max-width:100%;width:100%}
+.ctrl input[type=checkbox]{width:auto}
+.file{font-size:.8rem}
+.reader{overflow-wrap:anywhere;min-width:0}
+.fb{overflow-wrap:anywhere}
+.tbw{overflow-x:auto;margin:6px 0}
+.fb table{border-collapse:collapse;width:100%;font-size:.88rem}
+.fb td,.fb th{border:1px solid var(--line);padding:6px;vertical-align:top;text-align:left}
+.tabs{overflow-x:auto;flex-wrap:nowrap}.tab{white-space:nowrap}
+@media(max-width:960px){.ctrl{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}.reader{max-height:60vh}}
+@media(max-width:600px){main{padding:0 8px 28px}.tabs{padding:8px 8px 0}.pane{padding:10px}.reader{font-size:1rem;padding:10px;line-height:1.8}button,select,input[type=text]{min-height:44px}input,select,textarea{font-size:16px}header{padding:12px}.row button{flex:1}.fb table{font-size:.8rem}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Ingeniería Inversa de Textos · Laboratorio de lectura</h1>
+  <p>Lector TTS interactivo, herramientas de análisis textual y metodología de 5 pasos.</p>
+</header>
+<div class="tabs" id="tabs"></div>
+<main id="panes"></main>
+
+<script>
+/* Contenido: texto y retroalimentación según el documento del Microlab 01 */
+const T1=`Cerca de un viejo albergue de caravanas medio abandonado, vimos tres hombres que discutían acaloradamente junto a un hato de camellos.
+Entre gritos e improperios, en plena discusión, braceando como posesos, se oían exclamaciones:
+– ¡Qué no puede ser!
+– ¡Es un robo!
+– ¡Pues yo no estoy de acuerdo!
+El inteligente Beremiz procuró informarse de lo que discutían.
+– Somos hermanos, explicó el más viejo, y recibimos como herencia esos 35 camellos. Según la voluntad expresa de mi padre, me corresponde la mitad, a mi hermano Hamed Namir una tercera parte y a Harim, el más jóven, sólo una novena parte. No sabemos, sin embargo, cómo efectuar la partición y a cada reparto propuesto por uno de nosotros sigue la negativa de los otros dos. Ninguna de las particiones ensayadas hasta el momento nos ha ofrecido un resultado aceptable. Si la mitad de 35 es 17 y medio, si la tercera parte y también la novena de dicha cantidad tampoco son exactas ¿cómo proceder a tal partición?
+– Muy sencillo, dijo Beremiz. Yo me comprometo a hacer con justicia ese reparto, mas antes permítanme que una a esos 35 camellos de la herencia este expléndido animal que nos trajo aquí en buena hora.
+En este punto intervine en la cuestión:
+– ¿Cómo voy a permitir semejante locura? ¿Cómo vamos a seguir el viaje si nos quedamos sin el camello?
+– No te preocupes, bagdalí, me dijo en voz baja Beremiz. Sé muy bien lo que estoy haciendo. Cédeme tu camello y verás a que conclusión llegamos.
+Y tal fue el tono de seguridad con que lo dijo que le entregué sin el menor titubeo mi bello jamal, que, inmediatamente, pasó a incrementar la cáfila que debía ser repartida entre los tres herederos.
+– Amigos míos, dijo, voy a hacer la división justa y exacta de los camellos, que como ahora ven son 36.
+Y volviéndose hacia el más viejo de los hermanos, habló así:
+– Tendrías que recibir, amigo mío, la mitad de 35, esto es: 17 y medio. Pues bien, recibirás la mitad de 36 y, por tanto, 18. Nada tienes que reclamar puesto que sales ganando con esta división.
+Y dirigiéndose al segundo heredero, continuó:
+– Y tú, Hamed, tendrías que recibir un tercio de 35, es decir 11 y poco más. Recibirás un tercio de 36, esto es, 12. No podrás protestar, pues también tú sales ganando en la división.
+Y, por fín, dijo al más joven:
+– Y tú, joven Harim Namir, según la última voluntad de tu padre, tendrías que recibir una novena parte de 35, o sea 3 camellos y parte del otro. Sin embargo, te daré la novena parte de 36, o sea, 4. Tu ganancia será también notable y bien podrás agradecerme el resultado.
+Y concluyó con la mayor seguridad:
+– Por esta ventajosa división que a todos ha favorecido, corresponden 18 camellos al primero, 12 al segundo y 4 al tercero, lo que da un resultado – 18+12+4 – de 34 camellos. De los 36 camellos sobran por tanto dos. Uno, como saben, pertenece al bagdalí, mi amigo y compañero; otro es justo que me corresponda, por haber resuelto a satisfacción de todos el complicado problema de la herencia.
+– Eres inteligente, extranjero, exclamó el más viejo de los tres hermanos, y aceptamos tu división con la seguridad de que fue hecha con justicia y equidad.`;
+const T2=`El primer paso fundamental para explorar, desde un punto de vista científico, la naturaleza de la mente es rechazar la premisa de que ésta apareció súbitamente como resultado de una “intervención espectacular”. La naturaleza de la mente debe entenderse con base en su origen, en el proceso de su desarrollo, que emana del perenne mecanismo biológico de ensayo y error. La mente, o lo que llamaré “el estado mental”, es el producto de los procesos evolutivos que han tenido lugar en el cerebro de los organismos dotados de movimiento. Esta evolución cerebral se presentó de manera paulatina, desde las formas más primitivas hasta las más altamente evolucionadas. Por tanto, el examen de las bases científicas de la mente requiere una perspectiva evolutiva rigurosa, ya que es a través de este proceso cómo se generó la mente. Cómo llegó la mente a nosotros (o nosotros a ella, como veremos más adelante) es una bella historia de más de 700 millones de años que, como todo lo biológico, aún no termina su arduo caminar.
+Para comprender la naturaleza de la mente, el requisito primordial es disponer de una perspectiva apropiada. Así como la sociedad occidental, sumida en el pensamiento dualista, debe cambiar de orientación para captar las premisas elementales de la filosofía no-dualista, también es necesario un cambio fundamental de perspectiva para abordar la naturaleza neurobiológica de la mente.
+Mi ciclo de charlas en las Conferencias de ex alumnos estadounidenses de St. Andrews constituyeron un intento de tal reorientación; el presente libro procederá en esta línea de pensamiento.
+En su ciclo de conferencias Gifford en Edimburgo, en 1937, tituladas “Reflexiones del hombre sobre su naturaleza”, Charles Sherrington (1941, capítulo 12) insinuó la posibilidad de que si algún día los seres humanos llegaran a enfrentarse cara a cara con su verdadera naturaleza, este conocimiento podría desencadenar la caída de la civilización. Evidentemente, para Sherrington, el hombre prefiere considerarse como el más bajo de los ángeles y no el más alto de los animales. Mi opinión es que si algún día llegáramos a comprender en su totalidad la portentosa naturaleza de la mente, de hecho, el respeto y la admiración por nuestros congéneres se verían notablemente enriquecidos.`;
+const TB=(h,rows)=>'<div class="tbw"><table><tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr>'+rows.map(r=>'<tr>'+r.map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('')+'</table></div>';
+const H3='Operador gramatical,Función lógica (semántica),Efecto en el procesamiento textual'.split(',');
+const SESSIONS=[
+{id:'s1',title:'Sesión 1 · El hombre que calculaba (Malba Tahan)',text:T1,steps:[
+{t:'1. Identificación del tipo de lectura aplicada',ref:`
+<h4>Fase 1: Identificación y clasificación del tipo de lectura</h4>
+<p><b>1.1. Dimensión recreativa (superficie narrativa).</b> Ficción con estructura clásica de conflicto y resolución; genera expectativa estética mediante el diálogo acalorado y la aparente irracionalidad de ceder un activo valioso (el camello del bagdalí). Evidencia: «– ¿Cómo voy a permitir semejante locura? ¿Cómo vamos a seguir el viaje si nos quedamos sin el camello?». <i>Función:</i> capta el interés y establece la tensión dramática.</p>
+<p><b>1.2. Dimensión informativa (datos explícitos).</b> Inventario: 35 camellos. Alícuotas: primogénito $1/2$ (50%); Hamed $1/3$ (33,33%); Harim $1/9$ (11,11%). <i>Función:</i> variables de entrada para verificar el cálculo.</p>
+<p><b>1.3. Dimensión crítica (nivel profundo).</b> Dimensión central del laboratorio: examinar la validez matemática y lógica. Las condiciones testamentarias tienen un fallo formal: las alícuotas no completan la unidad. Beremiz presenta su solución como «justa y exacta», pero:</p>
+<p>$$\\tfrac12+\\tfrac13+\\tfrac19=\\tfrac{9+6+2}{18}=\\tfrac{17}{18}$$</p>
+<p>Queda un residuo no distribuido de $1/18$ (aprox. 1,94 camellos). Beremiz detecta esta ineficiencia del algoritmo testamentario y la usa para resolver el conflicto sin violar las proporciones.</p>
+<p><b>Resultado de la Fase 1:</b> el texto es primariamente una demostración conceptual y crítica envuelta en un marco recreativo.</p>`},
+{t:'2. Distinción entre comprensión literal e inferencial',ref:`
+<h4>Fase 2: Matriz de descomposición explícita e inferencial</h4>`+TB(['Componente literal (datos explícitos)','Componente inferencial (deducción técnica)'],[
+['Herencia inicial: 35 camellos. Tres herederos en disputa violenta.','Problema de indivisibilidad física: $35/2$, $35/3$ y $35/9$ no son enteros.'],
+['Regla del testamento: 1/2 al mayor, 1/3 al segundo, 1/9 al menor.','El testamento tiene un vacío aritmético (falta $1/18$ para completar el conjunto inicial).'],
+['Beremiz suma 1 camello prestado. Total: 36.','Variable auxiliar externa para obtener un múltiplo divisible entre 2, 3 y 9.'],
+['Asignaciones: 18, 12 y 4.','Cada heredero recibe más que su cuota estricta (18 &gt; 17,5; 12 &gt; 11,66; 4 &gt; 3,88), eliminando la resistencia psicológica.'],
+['18 + 12 + 4 = 34. Sobran 2.','La variable auxiliar se recupera (1 camello al bagdalí) y se genera un honorario (1 camello a Beremiz) a partir del sobrante ineficiente.']])+`
+<p><b>Síntesis de la inferencia metodológica.</b> Al deconstruir «Sé muy bien lo que estoy haciendo» se infiere que Beremiz no confía en el azar sino en que $\\mathrm{MCM}(2,3,9)=18$ y que elevar el universo a 36 permite operar con enteros, absorbiendo el margen sobrante como plusvalía de su intervención técnica.</p>
+<p><b>Resultado de la Fase 2:</b> mapeo completo de la divergencia entre la percepción del usuario (los hermanos) y el algoritmo real (Beremiz).</p>`},
+{t:'3. Evaluación de niveles de lectura alcanzados',ref:`
+<h4>Fase 3: Evaluación sistemática de niveles de lectura</h4>
+<p><b>3.1. Nivel 1: microestructura literal.</b> Localización: albergue de caravanas medio abandonado. Sujetos: tres hermanos, Beremiz Samir y el bagdalí (narrador). Insumos: 35 camellos. Modificación: +1 camello = 36. Distribución: 18 (1/2), 12 (1/3), 4 (1/9); total consumido: 34.</p>
+<p><i>Auditoría:</i> ¿coherencia entre datos y resultado? Sí, $36-34=2$. ¿El dueño recupera su unidad? Sí, 1 camello al bagdalí. ¿Beneficio del mediador? 1 camello.</p>
+<p><b>3.2. Nivel 2: macroestructura crítica (premisas y ética).</b> ¿Es equitativo el reparto? Beremiz no respetó la voluntad sobre $N=35$, sino que alteró la base a $N'=36$: Hermano 1, 18 de 35 = 51,4% (en lugar de 50%); Hermano 2, 12 de 35 = 34,28% (en lugar de 33,33%); Hermano 3, 4 de 35 = 11,42% (en lugar de 11,11%).</p>
+<p><i>Cuestionamiento crítico:</i> convence porque su solución satisface la <b>optimalidad de Pareto</b> (todos ganan más respecto a la división fraccionaria inviable), pero se apropia del residuo no asignado:</p>
+<p>$$\\tfrac12+\\tfrac13+\\tfrac19=\\tfrac{17}{18}\\qquad 35\\left(1-\\tfrac{17}{18}\\right)=\\tfrac{35}{18}\\approx 1{,}94$$</p>
+<p><i>Conclusión crítica (tal como la formaliza el laboratorio):</i> el sobrante original era 1,94 camellos; al llevar el total a 36 y repartir 34, queda 1 camello libre que Beremiz reclama como honorario. La «magia» es un cobro de honorarios justificado por la optimización del sistema; el texto usa una retórica de «generosidad» para encubrir un cobro por arbitraje técnico calculado.</p>
+<p><b>3.3. Nivel 3: superestructura creativa (reingeniería textual).</b> Ejercicio: herencia de 17 camellos en alícuotas 1/2, 1/3 y 1/9. Método de Beremiz: se añade 1 (total 18); $9+6+2=17$; se devuelve el camello prestado. No hay honorario, pero la indivisibilidad se resuelve exactamente. <i>Modificación por diseño social:</i> los herederos, tras comprender la ineficiencia de la fórmula de su padre, deciden donar el camello sobrante a la cáfila del albergue para auxilio de viajeros.</p>
+<p><b>Resultado de la Fase 3:</b> validación de la aprehensión del modelo mediante su extensión y modificación.</p>`},
+{t:'4. Definición del propósito comunicativo y estructura textual',ref:`
+<h4>Fase 4: Propósito comunicativo y arquitectura textual</h4>
+<p><b>4.1. Propósito.</b> Divulgación pedagógica de la matemática mediante resolución creativa de problemas. <i>Didáctico:</i> fracciones, mínimos comunes múltiplos y variables auxiliares. <i>Persuasivo:</i> superioridad del pensamiento analítico sobre la confrontación empírica y destructiva. <i>Principio de diseño:</i> la abstracción formal resuelve conflictos que parecen insolubles bajo una mirada rígida.</p>
+<p><b>4.2. Estructura tripartita.</b></p>
+<p><b>A. Entrada (planteamiento).</b> De la ambientación a la imposibilidad de repartir 35 camellos. Segmento: «Si la mitad de 35 es 17 y medio... ¿cómo proceder a tal partición?». Marcadores: «Cerca de...» (marco espacio-temporal); «Según la voluntad...» (reglas y restricciones); «Sin embargo...» (punto de quiebre). «Sin embargo» es el pivote que convierte una herencia estática en un problema operativo insuperable sin intervención externa.</p>
+<p><b>B. Procesamiento (algoritmo).</b> Paso 1: $35+1=36$. Paso 2: $36/2=18$. Paso 3: $36/3=12$. Paso 4: $36/9=4$. Ordenadores: «Pues bien...» (aplicación al primer sujeto), «Y dirigiéndose...» (transición), «Y, por fin...» (cierre de la secuencia), «Sin embargo...» (corrección del resultado teórico), «Por tanto...» (concluye cada paso mostrando el beneficio del usuario). La estructura concatenada evita objeciones paso a paso.</p>
+<p><b>C. Salida (balance y liquidación).</b> Total asignado (34) + devolución (1) + honorario (1) = $N'$ (36). Conector: «De los 36 camellos sobran <i>por tanto</i> dos», que valida el fin de la operación y justifica la distribución del residuo.</p>
+<p><b>Resultado de la Fase 4:</b> la estructura discursiva guía el cómputo lógico sin dejar resquicios de duda.</p>`},
+{t:'5. Análisis de conectores y relaciones lógicas',ref:`
+<h4>Fase 5: Matriz de conectores y relaciones lógicas</h4>`+TB(H3,[
+['«Sin embargo»','Oposición / restricción','Bloquea la aplicación directa del testamento e introduce el estado de error por indivisibilidad.'],
+['«Mas antes» / «Permítanme»','Prerrequisito / precondición','Establece la necesidad de inyectar el camello auxiliar antes de ejecutar la división.'],
+['«Esto es» / «Es decir»','Explicación / equivalencia','Traduce la fracción abstracta (1/2, 1/3, 1/9) a una cantidad entera de camellos.'],
+['«Puesto que» / «Pues»','Causalidad / justificación','Valida psicológicamente la aceptación de cada hermano mostrando su ganancia neta.'],
+['«Por tanto»','Consecuencia lógica','Formaliza el remanente de 2 camellos al sumar 18+12+4.']])+`
+<p><b>Resultado de la Fase 5:</b> la cohesión discursiva es el soporte estructural de la coherencia matemática del ejercicio.</p>
+<h4>Conclusión del laboratorio</h4>
+<p>La ingeniería inversa textual desarma la narración en: <b>nivel técnico-informativo</b> (entradas, variables, restricciones); <b>inferencial-algorítmico</b> (ineficiencia testamentaria $17/18$ y uso del MCM); <b>crítico</b> (cobro de honorarios implícito bajo el velo ético); <b>creativo</b> (extrapolación a herencias como la de 17 camellos). Leer no es consumo pasivo, sino ingeniería discursiva: se desensambla el texto para comprender, evaluar y recrear la arquitectura de su pensamiento. Enseñanza central: una solución sorprendente se comprende al observar tanto los datos explícitos como las relaciones implícitas.</p>`}
+]},
+{id:'s2',title:'Sesión 2 · El cerebro y el mito del yo (Dr. Rodolfo Llinás)',text:T2,steps:[
+{t:'Paso 1: Protocolo de lectura detallada e inspección de premisas',ref:`
+<h4>Premisas del autor</h4>
+<p><b>Biológico-evolutiva:</b> la mente es un estado funcional derivado de procesos evolutivos de ensayo y error de más de 700 millones de años en organismos dotados de motricidad.</p>
+<p><b>Epistemológica:</b> es imperativo superar el dualismo mente-cuerpo mediante una reorientación del marco conceptual.</p>
+<p><b>Ético-axiológica:</b> el autoconocimiento neurobiológico riguroso no destruye la dignidad humana, sino que eleva la admiración y el respeto mutuo.</p>`},
+{t:'Paso 2: Identificación y justificación del tipo de lectura predominante',ref:`
+<h4>Lectura crítica</h4>
+<p>Aunque hay elementos informativos (datos evolutivos) y destellos recreativos («bella historia»), el núcleo del texto es argumentativo y de juzgamiento de premisas filosóficas.</p>
+<p><b>Justificación técnica:</b> exige cuestionar el paradigma dominante (dualismo cartesiano occidental) y la postura creacionista («intervención espectacular»); requiere sopesar dialécticamente la tesis pesimista de Sherrington (la caída de la civilización al descubrir la naturaleza animal del hombre) y la tesis optimista de Llinás.</p>
+<p><b>Resultado:</b> el texto busca la reconfiguración activa del modelo mental del lector respecto al ser humano, no la recepción estática de hechos.</p>`},
+{t:'Paso 3: Matriz de diferenciación entre información explícita e inferencial',ref:`
+<h4>Matriz literal / inferencial</h4>`+TB(['Componente literal (explícito)','Componente inferencial (deducción técnica)'],[
+['Rechazar la aparición súbita por «intervención espectacular».','Las explicaciones creacionistas o teológicas carecen de validez en la metodología científica.'],
+['La mente se presenta en «organismos dotados de movimiento».','La función primaria del cerebro es la predicción de la acción motora; los seres sésiles no requieren mente.'],
+['Historia de más de 700 millones de años que aún no termina.','La mente humana actual no es una cumbre terminada, sino una etapa abierta del proceso evolutivo del sistema nervioso.'],
+['Sherrington insinuó que conocer la verdadera naturaleza causaría la caída de la civilización.','La cultura occidental sostiene su moral en un dogma de excepcionalidad humana («el más bajo de los ángeles» y no un animal evolutivo).'],
+['Llinás opina que comprender la mente enriquecerá el respeto por nuestros congéneres.','La empatía y la ética no requieren justificaciones místicas, sino la reconexión con nuestra naturaleza biológica compartida.']])},
+{t:'Paso 4: Análisis sistemático de los tres niveles de lectura',ref:`
+<h4>Niveles de lectura</h4>
+<p><b>4.1. Literal.</b> Extensión temporal: 700 millones de años. Precondición biológica: organismos dotados de movimiento. Fuente citada: Charles Sherrington (Conferencias Gifford, Edimburgo, 1937 / publicación 1941). Marco del autor: conferencias en St. Andrews y el presente libro.</p>
+<p><b>4.2. Inferencial.</b> Se conecta el postulado del título (primacía motora) con el cuerpo del texto: si la mente emana de organismos en movimiento, el pensamiento no es una sustancia espiritual inmaterial, sino la interiorización evolucionada del movimiento muscular supervisado por redes neuronales predictivas.</p>
+<p><b>4.3. Crítico.</b> Llinás ejecuta un giro humanista dentro del materialismo biológico. Sherrington encarna la neurosis cultural de Occidente, temerosa de perder la categoría divina al aceptarse biológica; Llinás la refuta: la dignidad no proviene de un mito antropocéntrico («el más bajo de los ángeles»), sino de reconocer la complejidad evolutiva que nos conecta con la vida planetaria.</p>`},
+{t:'Paso 5: Propósito comunicativo, arquitectura textual y matriz de conectores',ref:`
+<h4>5.1. Propósito comunicativo</h4>
+<p>Convencer al lector científico y filosófico de desmantelar el paradigma dualista y adoptar una perspectiva evolutiva-neurobiológica que sitúe el origen de la mente en la motricidad y el desarrollo cerebral paulatino.</p>
+<h4>5.2. Arquitectura tripartita</h4>
+<p><b>Entrada (tesis):</b> párrafo 1; rechazo de la aparición súbita/mística y origen evolutivo gradual de más de 700 millones de años ligado al movimiento. <b>Procesamiento (argumentación epistemológica):</b> párrafos 2 y 3; requisito de un cambio paradigmático no-dualista. <b>Salida (dialéctica y balance moral):</b> párrafo 4; contraste entre la objeción pesimista de Sherrington y la tesis optimista del autor.</p>
+<h4>5.3. Matriz de conectores</h4>`+TB(H3,[
+['«Por tanto»','Consecuencia lógica / deducibilidad','Establece la necesidad metodológica de la perspectiva evolutiva como deducción del origen cerebral gradual.'],
+['«ya que»','Causalidad / explicación justificativa','Sustenta la exigencia del enfoque evolutivo en que este es el canal a través del cual emergió la mente.'],
+['«Así como [...] también»','Analogía / correspondencia estructural','Equipara la reorientación neurobiológica con la transición occidental del dualismo al no-dualismo.'],
+['«Evidentemente»','Modalizador epistémico / evidencialidad','Muestra la premisa soterrada de Sherrington: ubicar al hombre en una escala divina («ángel») y no biológica («animal»).'],
+['«de hecho»','Confirmación / énfasis asertivo','Refuerza la tesis de Llinás: el autoconocimiento neurobiológico fortalece el respeto mutuo.']])+`
+<p><b>Resultado:</b> el diseño discursivo de Llinás ensambla rigurosidad científica, coherencia sintáctica y elevación moral.</p>`}
+]}];
+
+const CONECT=['sin embargo','por lo tanto','por tanto','puesto que','en consecuencia','además','pero','mas','aunque','porque','pues','así que','por consiguiente','no obstante','ya que','de modo que','por eso','sino','es decir','en cambio','también','entonces','luego','dado que'];
+const norm=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const CN=CONECT.map(c=>norm(c).split(' ')).sort((a,b)=>b.length-a.length);
+
+/* ============ LECTOR ============ */
+function Reader(root,text){
+  const box=root.querySelector('.reader');
+  let words=[],toks=[],cur=-1,speaking=false,paused=false,startIdx=0,gen=0;
+  const sel={rate:1,voice:null,cps:{}};
+  const $=q=>root.querySelector(q);
+
+  function render(t){
+    stop();box.innerHTML='';words=[];toks=[];
+    t.split(/\n+/).filter(x=>x.trim()).forEach(par=>{
+      const p=document.createElement('p');
+      for(const m of par.matchAll(/([\p{L}\p{N}]+)|([^\p{L}\p{N}]+)/gu)){
+        if(m[1]){
+          const s=document.createElement('span');s.className='w';s.textContent=m[1];
+          const i=words.length;s.dataset.i=i;words.push({el:s,n:norm(m[1])});toks.push({w:i,s:m[1]});p.appendChild(s);
+        }else{
+          toks.push({w:-1,s:m[2]});
+          for(const ch of m[2]){
+            if(/[,.;—–\-:]/.test(ch)){const s=document.createElement('span');s.className='pc';s.textContent=ch;p.appendChild(s)}
+            else p.appendChild(document.createTextNode(ch));
+          }
+        }
+      }
+      toks.push({w:-1,s:'\n'});
+      box.appendChild(p);
+    });
+    marks();
+  }
+  function marks(){
+    words.forEach(w=>w.el.classList.remove('cn','kw'));
+    for(let i=0;i<words.length;i++){
+      for(const c of CN){
+        if(c.every((x,k)=>words[i+k]&&words[i+k].n===x)){c.forEach((_,k)=>words[i+k].el.classList.add('cn'));i+=c.length-1;break}
+      }
+    }
+    const kws=$('.kwin').value.split(',').map(s=>norm(s.trim())).filter(Boolean);
+    if(kws.length)words.forEach(w=>{if(kws.some(k=>k.includes(' ')?false:w.n===k||(k.length>3&&w.n.startsWith(k))))w.el.classList.add('kw')});
+  }
+  function hl(i){
+    if(cur>=0&&words[cur])words[cur].el.classList.remove('cur');
+    cur=i;
+    if(words[i]){words[i].el.classList.add('cur');
+      const r=words[i].el.getBoundingClientRect(),b=box.getBoundingClientRect();
+      if(r.top<b.top||r.bottom>b.bottom)words[i].el.scrollIntoView({block:'center',behavior:'smooth'});}
+  }
+  function chunks(from){
+    const out=[];let c=null;let started=false;
+    for(const t of toks){
+      if(!started){if(t.w===from)started=true;else continue}
+      if(!c)c={text:'',offs:[]};
+      if(t.w>=0)c.offs.push({o:c.text.length,w:t.w});
+      c.text+=t.s==='\n'?' ':t.s;
+      if(c.text.length>170&&t.w<0&&/[.;\n]|\s/.test(t.s)||c.text.length>260){out.push(c);c=null}
+    }
+    if(c&&c.offs.length)out.push(c);
+    return out;
+  }
+  function speakFrom(i){
+    if(!('speechSynthesis' in window)){alert('Este navegador no soporta Web Speech API.');return}
+    speechSynthesis.cancel();const g=++gen;
+    startIdx=i;speaking=true;paused=false;
+    const list=chunks(i);
+    list.forEach((c,k)=>{
+      const u=new SpeechSynthesisUtterance(c.text);
+      u.lang='es-ES';u.rate=sel.rate;
+      const v=speechSynthesis.getVoices().find(v=>v.voiceURI===sel.voice);if(v){u.voice=v;u.lang=v.lang}
+      let tm=null,got=false,el=0,last=0;
+      const key=()=>sel.voice||'d',cps=()=>sel.cps[key()]||15;
+      const tick=()=>{
+        if(g!==gen){clearInterval(tm);return}
+        const now=performance.now();
+        if(!paused&&!got){
+          el+=(now-last)/1000;
+          const ch=el*cps()*sel.rate;let w=c.offs[0].w;
+          for(const f of c.offs){if(f.o<=ch)w=f.w;else break}
+          hl(w);startIdx=w;
+        }
+        last=now;
+      };
+      u.onboundary=e=>{if(g!==gen)return;got=true;clearInterval(tm);let w=c.offs[0].w;for(const f of c.offs){if(f.o<=e.charIndex)w=f.w;else break}hl(w);startIdx=w};
+      u.onerror=e=>{clearInterval(tm);if(g===gen&&e.error!=='canceled'&&e.error!=='interrupted'){vn.textContent='Error de voz: '+e.error+'. Pruebe otra voz o navegador.'}};
+      u.onstart=()=>{if(g!==gen)return;hl(c.offs[0].w);last=performance.now();tm=setInterval(tick,60)};
+      u.onend=()=>{
+        clearInterval(tm);if(g!==gen)return;
+        if(!got&&el>0.8){const m=c.text.length/(el*sel.rate);sel.cps[key()]=Math.min(30,Math.max(8,(cps()+m)/2))}
+        if(k===list.length-1){speaking=false;hl(-1);$('.pp').textContent='▶ Reproducir'}
+      };
+      speechSynthesis.speak(u);
+    });
+    $('.pp').textContent='⏸ Pausar';
+  }
+  function stop(){gen++;if('speechSynthesis' in window)speechSynthesis.cancel();speaking=paused=false;hl(-1);const b=$('.pp');if(b)b.textContent='▶ Reproducir'}
+
+  box.addEventListener('click',e=>{const w=e.target.closest('.w');if(w)speakFrom(+w.dataset.i)});
+  $('.pp').onclick=()=>{
+    if(!speaking)return speakFrom(Math.max(startIdx,0));
+    if(paused){speechSynthesis.resume();paused=false;$('.pp').textContent='⏸ Pausar'}
+    else{speechSynthesis.pause();paused=true;$('.pp').textContent='▶ Continuar'}
+  };
+  $('.st').onclick=()=>{startIdx=0;stop()};
+  $('.rate').onchange=e=>{sel.rate=+e.target.value;if(speaking)speakFrom(startIdx)};
+  const vs=$('.voice');
+  const vn=$('.vnote');
+  function score(v){const n=v.name.toLowerCase(),l=v.lang.toLowerCase().replace('_','-');let s=0;
+    if(/natural|neural|online/.test(n))s+=10;if(!v.localService)s+=2;
+    s+={'es-co':3,'es-mx':2,'es-us':2,'es-es':1}[l]||0;return s}
+  function loadVoices(){
+    if(!('speechSynthesis' in window)){vn.textContent='Este navegador no soporta síntesis de voz.';return}
+    const all=speechSynthesis.getVoices();
+    const es=all.filter(v=>v.lang.toLowerCase().replace('_','-').startsWith('es'));
+    const list=(es.length?es:all).slice().sort((a,b)=>score(b)-score(a));
+    const prev=sel.voice;vs.innerHTML='';
+    list.forEach(v=>{const o=document.createElement('option');o.value=v.voiceURI;o.textContent=`${v.name} (${v.lang})`;vs.appendChild(o)});
+    if(prev&&list.some(v=>v.voiceURI===prev))vs.value=prev;
+    sel.voice=vs.value||null;
+    vn.textContent=!all.length?'El navegador no expone voces del sistema (p. ej. Brave con protección de huellas, o Firefox sin motor TTS instalado). Use Edge o Chrome.':!es.length?'No hay voces en español instaladas; se listan las demás.':'';
+  }
+  if('speechSynthesis' in window){
+    loadVoices();speechSynthesis.addEventListener('voiceschanged',loadVoices);
+    let n=0;const iv=setInterval(()=>{loadVoices();if(speechSynthesis.getVoices().length||++n>10)clearInterval(iv)},400);
+  }
+  vs.onchange=()=>{sel.voice=vs.value;if(speaking)speakFrom(startIdx)};
+  $('.tcn').onchange=e=>box.classList.toggle('cn-on',e.target.checked);
+  $('.tpn').onchange=e=>box.classList.toggle('pun-on',e.target.checked);
+  $('.kwin').oninput=()=>{box.classList.add('kw-on');marks()};
+  $('.file').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>render(String(r.result));r.readAsText(f,'UTF-8')};
+  $('.apply').onclick=()=>{const t=$('.paste').value.trim();if(t)render(t)};
+  $('.reset').onclick=()=>render(text);
+  render(text);
+  return{stop};
+}
+
+/* ============ CONSTRUCCIÓN DE LA UI ============ */
+const tabs=document.getElementById('tabs'),panes=document.getElementById('panes'),readers=[];
+SESSIONS.forEach((S,n)=>{
+  const tb=document.createElement('div');tb.className='tab'+(n?'':' on');tb.textContent=S.title;tabs.appendChild(tb);
+  const p=document.createElement('section');p.className='pane'+(n?'':' on');
+  p.innerHTML=`
+  <div class="layout">
+   <div class="ctrl">
+    <fieldset><legend>Lector TTS</legend>
+     <div class="row"><button class="pp">▶ Reproducir</button><button class="sec st">⏹ Detener</button></div>
+     <label>Velocidad <select class="rate"><option value="0.8">0.8x</option><option value="1" selected>1.0x</option><option value="1.25">1.25x</option><option value="1.5">1.5x</option></select></label>
+     <label>Voz <select class="voice"></select></label>
+     <div class="note">Haga clic en cualquier palabra para leer desde allí.</div><div class="note vnote" style="color:#b45309"></div>
+    </fieldset>
+    <fieldset><legend>Análisis textual</legend>
+     <label class="sw"><input type="checkbox" class="tcn"> Conectores lógicos</label>
+     <label class="sw"><input type="checkbox" class="tpn"> Signos de puntuación</label>
+     <label>Palabras clave (separadas por comas)<input type="text" class="kwin" placeholder="camellos, herencia, ego"></label>
+    </fieldset>
+    <fieldset><legend>Texto</legend>
+     <input type="file" class="file" accept=".txt">
+     <details><summary>Pegar texto</summary><textarea class="paste" rows="4"></textarea><div class="row"><button class="apply">Usar texto</button></div></details>
+     <div class="row"><button class="sec reset">Restaurar texto</button></div>
+     <div class="note">Texto del microlab precargado; puede reemplazarlo con otro.</div>
+    </fieldset>
+   </div>
+   <div class="reader"></div>
+  </div>
+  <div class="steps"><h2 style="margin:0;font:600 1.1rem system-ui;color:var(--acc)">Laboratorio de Ingeniería Inversa · 5 pasos</h2></div>`;
+  const st=p.querySelector('.steps');
+  S.steps.forEach(s=>{
+    const d=document.createElement('div');d.className='step';
+    d.innerHTML=`<h3>${s.t}</h3><textarea placeholder="Escriba su análisis…"></textarea>
+      <div class="row"><button class="chk">Verificar / Retroalimentar</button></div>
+      <div class="fb"><h4>Retroalimentación esperada (análisis de referencia del laboratorio)</h4><div class="body">${s.ref}</div></div>`;
+    d.querySelector('.chk').onclick=()=>{
+      const fb=d.querySelector('.fb');fb.classList.toggle('on');
+      if(fb.classList.contains('on')&&window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([fb]).catch(()=>{});
+    };
+    st.appendChild(d);
+  });
+  panes.appendChild(p);
+  readers.push(Reader(p,S.text));
+  tb.onclick=()=>{
+    readers.forEach(r=>r.stop());
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.pane').forEach(x=>x.classList.remove('on'));
+    tb.classList.add('on');p.classList.add('on');
+  };
+});
+</script>
+</body>
+</html>
