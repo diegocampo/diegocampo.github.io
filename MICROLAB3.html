@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Operación Permanencia</title>
+<style>
+:root{--bg:#f4f6fb;--fg:#1a2036;--mu:#59627f;--cd:#fff;--bd:#d6dbea;--ac:#1d6fe0;--ok:#157a45;--ko:#bb3434;--ac2:#e8f0fd;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f121c;--fg:#e8ebf5;--mu:#98a1bd;--cd:#181c2a;--bd:#2c3350;--ac:#5b9dff;--ok:#4cc486;--ko:#ff7a7a;--ac2:#1c2742;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f121c;--fg:#e8ebf5;--mu:#98a1bd;--cd:#181c2a;--bd:#2c3350;--ac:#5b9dff;--ok:#4cc486;--ko:#ff7a7a;--ac2:#1c2742;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.w{max-width:900px;margin:0 auto;padding:14px}
+h1{font-size:20px;margin:0}h2{font-size:17px;margin:4px 0 6px}small,.mu{color:var(--mu)}
+.hd{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.card{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:14px;margin:12px 0}
+.bar{height:10px;background:var(--bd);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .4s}
+.tabs,.st{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+button{font:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--cd);color:var(--fg);border-radius:8px;padding:7px 12px}
+button.on,.bt{background:var(--ac);color:#fff;border-color:var(--ac)}.bt{margin-top:8px}
+.lk{border:0;background:none;color:var(--ac);padding:2px 0}
+.c{padding:3px 9px;border-radius:99px;font-size:13px}
+input,textarea{width:100%;font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:8px}
+input[type=range]{padding:0}.fl{margin:12px 0}.fl label{font-weight:600;display:block;margin-bottom:4px}
+.msg{font-size:13px;min-height:4px}.ok{color:var(--ok)}.ko{color:var(--ko)}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.q{border-top:1px solid var(--bd);padding:10px 0}.opt{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid var(--bd);padding:6px 8px;text-align:left}
+pre{white-space:pre-wrap;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px;font-size:13px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.kp{font-size:22px;font-weight:700}
+.fbk{background:var(--ac2);border-radius:8px;padding:8px 10px;margin-top:6px;font-size:13.5px}.rd{--rb:#faf7ef;--rc:#fff;--rbd:#e6dfcd;--ra:#c58b0a;--rp:#1c1e2e;background:var(--rb);color:var(--fg);border-radius:14px;padding:16px}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .rd{--rb:#14161f;--rc:#1c2030;--rbd:#2e344c;--ra:#e0a924;--rp:#0b0d14}}
+:root[data-theme="dark"] .rd{--rb:#14161f;--rc:#1c2030;--rbd:#2e344c;--ra:#e0a924;--rp:#0b0d14}
+.rd h1{font:700 34px Georgia,"Times New Roman",serif}.rd h1 i{color:var(--ra);font-style:normal}
+.bdg{border:1px solid var(--rbd);background:var(--rc);border-radius:99px;padding:6px 14px;font-size:13px}.bdg:before{content:"●";color:var(--ra);margin-right:6px}
+.rdg{display:grid;grid-template-columns:230px 1fr;gap:14px;margin-top:14px;align-items:start}@media(max-width:700px){.rdg{grid-template-columns:1fr}}
+.rdc{background:var(--rc);border:1px solid var(--rbd);border-radius:14px;padding:14px}
+.rdc label{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin:12px 0 4px;font-weight:700}
+.rdc select{width:100%;font:inherit;padding:8px;border-radius:8px;border:1px solid var(--bd);background:var(--rc);color:var(--fg)}
+.rdc input[type=range]{accent-color:var(--ra);padding:0}
+.rdt{font:19px/1.9 Georgia,"Times New Roman",serif;min-height:230px;white-space:pre-wrap;padding:8px 4px;border-top:1px solid var(--rbd);margin-top:10px}
+.rdt .w{cursor:pointer;border-radius:4px;padding:0 1px}.rdt .w:hover{background:var(--ac2)}.rdt .on{background:var(--ra);color:#fff}
+.rdp{position:sticky;bottom:10px;margin-top:14px;background:var(--rp);color:#fff;border-radius:16px;padding:10px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rdp button{background:none;border:0;color:#fff;font-size:17px;padding:6px 9px}.rdp .pl{width:46px;height:46px;border-radius:50%;background:#2a2d42;box-shadow:0 0 0 2px var(--ra);font-size:20px}
+.rdp input[type=range]{flex:1;min-width:110px;accent-color:var(--ra);padding:0}.rdp small{color:#aab0c8;min-width:110px}
+</style></head><body><div class="w">
+<div class="hd"><div><h1>🎓 Operación Permanencia</h1><small>Misión de triangulación: ciencia · datos · norma</small></div>
+<div class="row"><input id="team" placeholder="Nombre del equipo" style="width:190px" oninput="S.team=this.value;sv()"><button onclick="tm()" id="tmb">⏱ 60:00</button></div></div>
+<div class="card"><div class="row" style="justify-content:space-between"><span><b id="pts" class="kp">0</b> pts · <span id="lv"></span></span><small>Cohorte salvada</small></div><div class="bar"><i id="pb"></i></div></div>
+<div class="tabs" id="tabs"></div><div id="app"></div></div>
+<script>
+const $=id=>document.getElementById(id);
+let S={team:'',sc:{},hn:{},tx:{},ev:{},src:{},q:{},s:3,r:0,gz:{g:3,f:30,a:1,n:1,k:2}};
+try{Object.assign(S,JSON.parse(localStorage.getItem('opperm')||'{}'))}catch(e){}
+const sv=()=>{try{localStorage.setItem('opperm',JSON.stringify(S))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const wc=t=>(t.trim().match(/\S+/g)||[]).length;
+const SRC=['Artículo','SPADIES (MEN)','UNICAUCA'];
+
+const RADAR=[
+["Reporta pregunta de investigación, método, muestra y limitaciones declaradas por sus autores.",0,"Rasgo del artículo científico (Gutiérrez-Monsalve et al., 2021): cohorte 2014-1, n=399 y limitaciones declaradas."],
+["Asigna a cada estudiante un estado dinámico por semestre: desertor, activo, graduado o retirado.",1,"SPADIES 3.0: enfoque de historia de vida."],
+["Establece como principios la prevención, integralidad, pertinencia, sostenibilidad, eficacia y eficiencia.",2,"Norma de Unicauca (Acuerdo Superior 052/2018 adaptado), Art. 2."],
+["Tasa de deserción anual = desertores en t ÷ matriculados en t−2 × 100.",1,"Indicador oficial de SPADIES 3.0."],
+["Obliga a incorporar la permanencia y la graduación al Plan de Desarrollo Institucional.",2,"Norma de Unicauca, Art. 4."],
+["Halló que estar en niveles 1 a 3 implica ≈5 veces más riesgo de bajo rendimiento que en niveles 7 a 10.",0,"Artículo: OR ajustado 5,1 para toda la UCO."],
+["Calcula la deserción con tres vistas: programa, IES y sistema.",1,"SPADIES 3.0: la vista sistema evita sobreestimar por movilidad entre programas e IES."],
+["Ordena diagnósticos de impacto cada tres años ante el Consejo Académico y los Consejos de Facultad.",2,"Norma de Unicauca, Art. 13."]];
+const DUELO=[
+["El artículo fija umbrales de bajo rendimiento por área (de 3,2 en ingeniería a 3,7 en educación); SPADIES define al desertor con una regla única: dos períodos consecutivos sin matrícula.",1,"Tensión: el rendimiento es una variable continua y específica por área; la deserción es un evento binario con regla general."],
+["El artículo usa solo variables administrativas y admite que faltan las psicosociales; la norma (Art. 1) reconoce causas de salud y sociales; SPADIES publica sexo, edad en Saber 11 y apoyos.",2,"Brecha: ninguna fuente de datos masivos captura bien lo psicosocial, que la norma sí declara como causal."],
+["El artículo propone alertas tempranas desde el bajo rendimiento; la norma (Art. 5) ordena alertas con SIMCA y SPADIES; SPADIES 3.0 identifica a los ausentes como estudiantes en riesgo.",0,"Convergencia: las tres fuentes apuntan a detectar riesgo a tiempo con datos institucionales."],
+["La norma define permanencia como continuidad en el programa (Art. 3); SPADIES 3.0, en vista sistema, no cuenta como desertor a quien migra de programa o IES.",1,"Tensión: cambiar la unidad de análisis (programa vs. sistema) cambia el significado de abandono."],
+["El artículo halla menor riesgo de bajo rendimiento con beca o subsidio (OR≈0,52); la norma (Art. 10) fortalece becas, créditos y apoyo socioeconómico.",0,"Convergencia: el apoyo financiero aparece como factor protector y como mandato institucional."],
+["El artículo halla el mayor riesgo en niveles 1 a 3; la norma evalúa impacto cada tres años (Art. 13); SPADIES calcula deserción anual (t frente a t−2).",1,"Tensión de temporalidad: el riesgo se concentra en los primeros semestres, pero el ciclo de evaluación normativo es lento. (Inferencia analítica)"]];
+const F=(id,l,m,kw,nd,fb,h,x)=>({id,l,m,kw,nd,fb,h,...x});
+const FS={
+art:[
+F('a_t','Título del artículo',3,['rendimiento acad'],1,'Factores asociados al rendimiento académico en estudiantes universitarios (Formación Universitaria, 14(1), 2021).','Portada del PDF.'),
+F('a_au','Autores / Año',2,['guti[eé]rrez','2021'],2,'Gutiérrez-Monsalve, Garzón y Segura-Cardona, 2021.','Primera página.'),
+F('a_url','Enlace (DOI / URL)',1,['10\\.4067|doi|scielo|http'],1,'DOI: http://dx.doi.org/10.4067/S0718-50062021000100013','Al pie del resumen.'),
+F('a_obj','Objetivo principal: ¿qué problema de investigación busca resolver?',12,['rendimiento acad|bajo ra','pedag[oó]gic|institucional|sociodemogr|variables|factores','administrativ|sistemas de informaci','cohorte|2014|uco|privada'],3,'Determinar, usando solo datos de los sistemas administrativos, qué variables pedagógicas, institucionales y sociodemográficas se asocian al bajo rendimiento académico de la cohorte 2014-1 de una universidad privada colombiana (UCO).','Resumen e introducción: busca la frase “lo novedoso de este trabajo”.',{ev:1}),
+F('a_met','Metodología: ¿tipo de estudio, variables y técnicas?',12,['discriminante','log[ií]stic','399|cohorte|2014|estudio de caso','\\bor\\b|odds|raz[oó]n|auc|sensibilidad|especificidad','miner[ií]a|administrativ|\\bR\\b'],3,'Estudio de caso cuantitativo (n=399, ocho áreas): análisis discriminante canónico y regresión logística (OR ajustados, AIC, sensibilidad, especificidad, AUC) con variables pedagógicas, institucionales y sociodemográficas; la regla de bajo RA se calibra con la capacidad de atender al 20 %.','Sección Metodología.',{ev:1}),
+F('a_h','Principal hallazgo',12,['repitencia|veces','nivel|trayectoria|1 a 3|primeros','beca|subsidio','cancel','psicosocial|auc|predictiv'],3,'El bajo RA se asocia con repitencia, niveles 1–3 (OR≈5,1 frente a 7–10), no tener beca y más asignaturas canceladas; las variables pedagógicas no fueron significativas; con AUC de 0,74–0,87 el modelo aún no es suficientemente predictivo sin variables psicosociales.','Resultados y conclusiones.',{ev:1})],
+spa:[
+F('s_t','Título del reporte',3,['spadies','cambio metodol|3\\.0'],2,'Cambio metodológico SPADIES 3.0.','Portada del PDF del MEN.'),
+F('s_e','Entidad emisora / Año',2,['ministerio|men'],1,'Ministerio de Educación Nacional (MEN). SPADIES 3.0 nace en 2018; el PDF no indica fecha de publicación.','¿Quién administra SPADIES desde 2018?'),
+F('s_u','Enlace o fuente',1,['mineducacion|http'],1,'https://www.mineducacion.gov.co/sistemasdeinformacion/1783/articles-415244_cambio_metodologico_spadies_3.pdf','Pega la URL del Anexo 2.'),
+F('s_d','Definición operacional de deserción',15,['dos|consecutiv','graduaci|graduado','disciplinari|retirado','programa|ies|sistema|vista'],3,'Desertor: no se observa matriculado por dos o más períodos consecutivos, sin graduación ni retiro por motivos disciplinarios. Se calcula en tres vistas: programa, IES y sistema.','Recuadro de estados y diagrama de tipos de cálculo.'),
+F('s_m','Métricas principales presentadas',12,['cohorte','anual','superviv','graduaci','ausencia','promedio acumulada|2\\.8'],4,'Siete indicadores: deserción por cohorte, promedio acumulada, anual (desertores t ÷ matriculados t−2), graduación acumulada, supervivencia, ausencia intersemestral y tasa periodo 2.8.','La tabla de indicadores lista siete.')],
+uni:[
+F('u_t','Título de la norma o lineamiento',3,['permanencia','graduaci','052|acuerdo'],2,'Política/Modelo de Permanencia y Graduación Estudiantil, Acuerdo Superior 052 de 2018 (programa PermaneSer), versión adaptada.','Encabezado del Anexo 3.'),
+F('u_e','Entidad reguladora / Año',2,['cauca|consejo superior','2018'],2,'Universidad del Cauca (Consejo Superior), 2018.','Órgano que expide y año.'),
+F('u_u','Enlace o fuente',1,['drive|http|unicauca'],1,'Enlace de Drive del Anexo 3 (copia adaptada del Acuerdo Superior 052 de 2018).','Pega la URL del Anexo 3.'),
+F('u_f','Factores o artículos sobre permanencia, graduación o bienestar',15,['art[íi]culo 7|monitor','escritura','art[íi]culo 10|socioecon|cr[eé]dito|icetex','art[íi]culo 11|psicosocial','art[íi]culo 9|educaci[oó]n media','inclusi'],3,'Art. 7 (monitorías y Centro de Escritura), Art. 8 (educación inclusiva), Art. 9 (articulación con educación media), Art. 10 (apoyo socioeconómico) y Art. 11 (apoyo psicosocial).','Título II: componentes de intervención.'),
+F('u_m','Mandato institucional: ¿qué exige obligatoriamente?',15,['plan de desarrollo','simca|spadies','alerta','tres|3 a[ñn]os|impacto|diagn','consejo acad|vicerrector'],3,'Incorporar la permanencia al Plan de Desarrollo Institucional (Art. 4), usar SIMCA y SPADIES con protocolos de remisión para activar alertas (Art. 5) y hacer diagnósticos de impacto cada tres años ante Consejo Académico y de Facultad (Art. 13).','Arts. 4, 5 y 13.')]};
+const MXD=[['Definición o conceptualización del fenómeno',
+[[['rendimiento acad','calificaci|promedio|nota','bajo|quintil|20 ?%|3[.,]\\d','factores|pedag|institucional|sociodemogr'],2,'El RA es el valor atribuido a los resultados de aprendizaje frente a lo esperado en pares; se mide con el promedio ponderado semestral (bajo RA = capacidad de atender al 20 %) y agrupa factores pedagógicos, institucionales, sociodemográficos y psicosociales.'],
+[['dos|consecutiv','historia de vida|estado','programa|ies|sistema'],2,'Desertor: sin matrícula por dos o más períodos consecutivos, sin graduación ni retiro disciplinario; estados dinámicos (desertor, activo, graduado, retirado) y tres vistas de cálculo.'],
+[['precoz|temprana|tard','permanencia','retenci|graduaci'],2,'Art. 3: permanencia (continuidad hasta culminar), graduación, deserción (voluntaria o forzosa: precoz, temprana, tardía) y retención.']]],
+['Variables clave / factores de riesgo',
+[[['repitencia|veces','nivel|trayectoria','beca|subsidio','cancel','sexo|masculino'],3,'Repitencia, nivel bajo (1–3), no tener beca, asignaturas canceladas y sexo masculino (OR 1,4 en toda la UCO); lo pedagógico no fue significativo.'],
+[['sexo|edad|saber','apoyo','cohorte|programa|ies','prim[ií]paro'],2,'Caracterización de primíparos (sexo, edad y clasificación en Saber 11, apoyos) y desagregación de indicadores por IES, programa y estudiante.'],
+[['acad[eé]mic','econ[oó]mic','salud','social'],3,'Art. 1: causales multicausales académicas, económicas, de salud y sociales.']]],
+['Metodología de medición o seguimiento',
+[[['discriminante','log[ií]stic','auc|roc|sensibilidad|aic'],2,'Discriminante canónico y regresión logística (OR, AIC, sensibilidad, especificidad, AUC) sobre datos administrativos de una cohorte.'],
+[['snies','icetex|icfes','historia de vida','cohorte|semestre'],3,'Integra SNIES, ICETEX e ICFES; historia de vida con trayectorias semestre a semestre; cohortes y siete indicadores.'],
+[['simca','spadies','alerta|remisi','tres|3 a[ñn]os|diagn'],3,'Art. 5: SIMCA y SPADIES con protocolos de remisión para alertas; Art. 13: diagnósticos de impacto cada tres años.']]],
+['Limitaciones o brechas identificadas',
+[[['psicosocial','auc|predictiv|0[.,][789]','costo|inversi','privada|uco|un solo|caso|generaliz'],2,'Faltan variables psicosociales; AUC de 0,74–0,87 (<0,9) no basta para predecir; un caso, una cohorte y una universidad privada; mejorar el modelo implica costos adicionales.'],
+[['sobreestim|inconsisten|no (son )?cargad','diferencias|cifras','variables|caracterizaci|causas|movilidad'],2,'Los registros inconsistentes no se cargan (difieren las cifras SNIES/SPADIES) y las variables disponibles son de caracterización; no explican causas psicosociales (inferencia analítica).'],
+[['tres|3 a[ñn]os|cada','indicador|meta|umbral|cuantit|no (define|fija|establece)','presupuest|recurso'],2,'Inferencia: no fija metas ni umbrales cuantitativos; evaluar cada tres años es lento para los primeros semestres; depende de recursos y presupuesto (Art. 2).']]]];
+FS.mx=[];MXD.forEach((r,i)=>['Artículo','SPADIES','UNICAUCA'].forEach((c,j)=>FS.mx.push(F(`m${i}${j}`,`${r[0]} · ${c}`,j?10:12,r[1][j][0],r[1][j][1],r[1][j][2],'Vuelve a la fuente: ¿qué dato concreto responde esta categoría?'))));
+FS.sim=[F('z_ref','Reflexión: ¿qué sesgo o limitación de tu modelo reportarías ante el CNA?',25,['sesgo|falso','sint[eé]tic|administrativ','psicosocial|privacidad|[eé]tic|estigma|etiquet|capacidad'],2,'Modelo con datos administrativos y sintéticos: riesgo de falsos positivos y negativos, estigmatización por etiquetar, privacidad y capacidad limitada de Bienestar; el artículo advierte que sin variables psicosociales el AUC es insuficiente.','Piensa en falsos positivos, datos faltantes y ética.')];
+const RK=['primer|1 a 3|temprana|nivel','spadies|ausencia|superviv|cohorte','art[íi]culo|acuerdo|permanese|plan de desarrollo|simca','repitencia|beca|subsidio|cancel|\\bor\\b|monitor|escritura'];
+FS.fin=[F('z_int','Integración: ¿cómo puede Unicauca integrar modelos predictivos con SPADIES y las exigencias del CNA en un sistema de alerta temprana?',80,['spadies','simca|administrativ','modelo|predictiv|regresi|log[ií]stic|machine','cna|acreditaci','alerta','evaluaci|indicador|seguimiento|retroaliment'],4,'Unir datos SIMCA y SPADIES (cohorte, supervivencia, ausencia); entrenar un modelo logístico con variables institucionales (repitencia, nivel, beca, cancelaciones) calibrado por área; activar alertas (Art. 5) dentro de la capacidad de Bienestar; medir eficacia con indicadores SPADIES y reportarla al CNA en ciclos más cortos que tres años; sumar variables psicosociales.','Conecta datos, modelo, intervención y evaluación.'),
+F('z_1','Recomendación 1',40,RK,3,'Ejemplo: alerta temprana en niveles 1–3 con repitencia, cancelaciones y ausencia intersemestral (artículo + Art. 5 + SPADIES).','',{sr:1}),
+F('z_2','Recomendación 2',40,RK,3,'Ejemplo: becas y apoyo financiero focalizados en primíparos en riesgo (artículo: subsidio OR≈0,52; Art. 10).','',{sr:1}),
+F('z_3','Recomendación 3',40,RK,3,'Ejemplo: acompañamiento académico temprano con monitorías y Centro de Escritura (Art. 7) y formación docente (Art. 6), evaluado con deserción anual y por cohorte.','',{sr:1})];
+const FB={};Object.values(FS).flat().forEach(f=>FB[f.id]=f.fb);RADAR.forEach((x,i)=>FB['r'+i]=x[2]);DUELO.forEach((x,i)=>FB['d'+i]=x[2]);
+FB.sim='Más banderas exigidas (k) reduce falsas alarmas; menos banderas sube la sensibilidad pero puede superar la capacidad de 48 alertas (20 %, como en el artículo). Reporta siempre precisión y sensibilidad, no solo aciertos.';
+const fp=f=>(f.m?5:0)+(f.kw?5:0)+(f.ev?3:0)+(f.sr?3:0);
+const MAX=RADAR.length*10+DUELO.length*10+40+Object.values(FS).flat().reduce((a,f)=>a+fp(f),0);
+const tot=()=>Math.max(0,Object.values(S.sc).reduce((a,b)=>a+b,0)-2*Object.keys(S.hn).length);
+function hdr(){const t=tot(),p=t/MAX;$('pts').textContent=t;$('pb').style.width=Math.min(100,p*100)+'%';$('lv').textContent=p<.25?'Aspirante':p<.5?'Analista educativo':p<.8?'Estratega':'Arquitecto/a de Permanencia';$('team').value=S.team}
+const tx=(k,v)=>{S.tx[k]=v;sv()};
+const ev=(k,v)=>{S.ev[k]=v;sv();go()};
+const hint=k=>{S.hn[k]=1;sv();const f=Object.values(FS).flat().find(x=>x.id===k);$('h_'+k).textContent=f.h;hdr()};
+const sr=(k,i)=>{const a=S.src[k]||[];S.src[k]=a.includes(i)?a.filter(x=>x!==i):[...a,i];sv();go()};
+
+const H=s=>{let h=5381;for(const c of s)h=((h<<5)+h+c.charCodeAt(0))>>>0;return h};const PH=611935895;let UNL=false;const OP={};
+function fbBox(id){if(!FB[id])return '';
+if(OP[id]&&UNL)return `<div class=fbk>✅ <b>Retroalimentación:</b> ${esc(FB[id])}</div>`;
+if(OP[id])return `<div class=fbk>🔒 <small>Pedir contraseña a tutor.</small><div class=row><input type=password id="pw_${id}" placeholder="Contraseña" style="width:170px" onkeydown="if(event.key==='Enter')fbv('${id}')"><button onclick="fbv('${id}')">Ver</button><small id="pe_${id}" class=ko></small></div></div>`;
+return `<button class=lk onclick="fbo('${id}')">🔒 Retroalimentar</button>`}
+function fbo(id){OP[id]=1;$('fb_'+id).innerHTML=fbBox(id)}
+function fbv(id){if(H($('pw_'+id).value.trim())===PH)UNL=true;else{$('pe_'+id).textContent='Contraseña incorrecta';return}$('fb_'+id).innerHTML=fbBox(id)}
+function form(tag){return FS[tag].map(f=>`<div class=fl><label>${esc(f.l)}${f.m>3?` <small>(≥${f.m} palabras)</small>`:''}</label><textarea rows=${f.m>9?4:1} oninput="tx('${f.id}',this.value)">${esc(S.tx[f.id]||'')}</textarea>
+${f.ev?`<div class=opt><small>Evidencia en:</small>${['Introducción','Metodología','Resultados','Discusión'].map(x=>`<button class="c ${S.ev[f.id]===x?'on':''}" onclick="ev('${f.id}','${x}')">${x}</button>`).join('')}</div>`:''}
+${f.sr?`<div class=opt><small>Fuentes que la justifican (≥2):</small>${SRC.map((x,i)=>`<button class="c ${(S.src[f.id]||[]).includes(i)?'on':''}" onclick="sr('${f.id}',${i})">${x}</button>`).join('')}</div>`:''}
+<div class=row>${f.h?`<button class=lk onclick="hint('${f.id}')">💡 Pista (−2)</button>`:''}<small id="h_${f.id}">${S.hn[f.id]?esc(f.h):''}</small></div><div class=msg id="m_${f.id}"></div><div id="fb_${f.id}">${fbBox(f.id)}</div></div>`).join('')+`<button class=bt onclick="check('${tag}')">Validar y cobrar puntos</button>`}
+function check(tag){FS[tag].forEach(f=>{const t=S.tx[f.id]||'',n=wc(t);let p=0,m='';
+if(n>=f.m){p+=5;const h=f.kw.filter(r=>new RegExp(r,'i').test(t)).length,nd=f.nd;p+=Math.round(5*Math.min(h,nd)/nd);if(h<nd)m=`Cubriste ${h} de ${nd} conceptos clave: vuelve a la fuente y precisa con datos.`}else m=`Desarrolla más (mín. ${f.m} palabras, llevas ${n}).`;
+if(f.ev){if(S.ev[f.id]&&n>=f.m)p+=3;else m+=' Marca dónde hallaste la evidencia.'}
+if(f.sr){if((S.src[f.id]||[]).length>=2)p+=3;else m+=' Justifica con al menos dos fuentes.'}
+S.sc[f.id]=p;const e=$('m_'+f.id);e.className='msg '+(m?'ko':'ok');e.textContent=m||`✓ +${p} pts`;if(m)e.textContent=`+${p} pts · `+m});sv();hdr()}
+function quiz(items,pf,lab){return items.map((it,i)=>{const k=pf+i,a=S.q[k];return `<div class=q><div>${i+1}. ${esc(it[0])}</div><div class=opt>${lab.map((l,j)=>`<button class="${a===j?'on':''}" ${a!==undefined?'disabled':''} onclick="ans('${pf}',${i},${j})">${l}</button>`).join('')}</div>${a!==undefined?`<div class="msg ${a===it[1]?'ok':'ko'}">${a===it[1]?'✓ +10':'✗ 0'}</div>`:''}<div id="fb_${k}">${fbBox(k)}</div></div>`}).join('')}
+function ans(pf,i,j){const it=(pf==='r'?RADAR:DUELO)[i];S.q[pf+i]=j;S.sc['q'+pf+i]=j===it[1]?10:0;sv();go();hdr()}
+/* Simulador sintético */
+const D=(()=>{let s=7;const r=()=>(s=(s*1664525+1013904223)>>>0)/4294967296;return Array.from({length:240},()=>{const g=Math.min(5,Math.max(.8,3.3+(r()+r()+r()-1.5)*1.3)),f=Math.min(100,Math.max(0,(3.4-g)*20+(r()-.4)*30)),a=r()<(g<2.6?.35:.1)?1:0,p=r()<.45?1:0,z=-1.2+(3.3-g)*1.1+f/100*1.4+a*1.1-p*.9+(r()-.5)*1.4;return{g,f,a,p,d:r()<1/(1+Math.exp(-z))?1:0}})})();
+const CAP=48;
+function sim(){const z=S.gz;let tp=0,fp=0,fn=0,tn=0;D.forEach(x=>{const fl=(x.g<z.g)+(x.f>z.f)+(z.a&&x.a)+(z.n&&!x.p),al=fl>=z.k;if(al&&x.d)tp++;else if(al)fp++;else if(x.d)fn++;else tn++});
+const pr=tp/Math.max(1,tp+fp),rc=tp/Math.max(1,tp+fn),f1=pr+rc?2*pr*rc/(pr+rc):0,al=tp+fp,adj=al>CAP?f1*.7:f1;return{tp,fp,fn,tn,pr,rc,f1,al,adj}}
+function simUpd(){const z=S.gz;z.g=+$('sg').value;z.f=+$('sf').value;z.k=+$('sk').value;z.a=$('sa').checked?1:0;z.n=$('sn').checked?1:0;sv();const r=sim(),pc=v=>(v*100).toFixed(0)+' %';
+$('sgv').textContent=z.g.toFixed(1);$('sfv').textContent=z.f;$('skv').textContent=z.k;
+$('so').innerHTML=`<table><tr><th></th><th>Desertó (real)</th><th>Continuó (real)</th></tr><tr><td>Alerta</td><td><b>${r.tp}</b> VP<br><small>verdadero positivo</small></td><td><b>${r.fp}</b> FP<br><small>falso positivo</small></td></tr><tr><td>Sin alerta</td><td><b>${r.fn}</b> FN<br><small>falso negativo</small></td><td><b>${r.tn}</b> VN<br><small>verdadero negativo</small></td></tr></table><p>Precisión ${pc(r.pr)} · Sensibilidad ${pc(r.rc)} · F1 ${r.f1.toFixed(2)} · Alertas ${r.al}/${CAP}${r.al>CAP?' <b class=ko>(superas la capacidad de Bienestar: F1 ×0,7)</b>':''}</p><b>Puntaje de esta configuración: ${Math.round(r.adj*40)} / 40</b>`}
+function simSave(){const r=sim(),p=Math.round(r.adj*40);S.sc.sim=Math.max(S.sc.sim||0,p);sv();hdr();$('simm').textContent=`Mejor puntaje registrado: ${S.sc.sim}`}
+function simUI(){const z=S.gz;return `<p>Cohorte <b>sintética</b> de 240 primíparos (no son datos reales). Como en el artículo, la universidad solo puede atender al 20 % (48 alertas). Configura tu regla y maximiza el F1.</p><details class=fbk open style="margin:10px 0"><summary><b>📘 ¿Cómo funciona este laboratorio? (lee antes de empezar)</b></summary>
+<p><b>1. Qué estás haciendo.</b> Eres el equipo de analítica de una universidad. Debes decidir <i>a quién avisarle</i> que está en riesgo de desertar, usando solo datos que ya existen en los sistemas (como en el artículo). Tu regla se prueba sobre 240 estudiantes ficticios de los que ya sabemos quién desertó.</p>
+<p><b>2. La regla de banderas.</b> Cada estudiante suma una bandera por cada señal de riesgo que cumpla: promedio bajo el umbral, créditos reprobados sobre el umbral, ausencia intersemestral y falta de beca o apoyo (estas dos se activan con las casillas). Si suma <b>k banderas o más</b>, se genera una alerta.</p>
+<p><b>3. Ejemplo con 4 estudiantes.</b> Regla: promedio &lt; 3,0; reprobados &gt; 30 %; usar ausencia y “sin beca”; k = 2.</p>
+<table><tr><th>Estudiante</th><th>Datos</th><th>Banderas</th><th>¿Alerta?</th><th>¿Desertó?</th><th>Resultado</th></tr>
+<tr><td>Ana</td><td>2,8 · 40 % · sin ausencia · con beca</td><td>2</td><td>Sí</td><td>Sí</td><td><b>VP</b></td></tr>
+<tr><td>Luis</td><td>3,6 · 10 % · ausente · sin beca</td><td>2</td><td>Sí</td><td>No</td><td><b>FP</b></td></tr>
+<tr><td>Marta</td><td>2,9 · 5 % · sin ausencia · con beca</td><td>1</td><td>No</td><td>Sí</td><td><b>FN</b></td></tr>
+<tr><td>Pedro</td><td>4,0 · 0 % · sin ausencia · con beca</td><td>0</td><td>No</td><td>No</td><td><b>VN</b></td></tr></table>
+<p><b>4. Acrónimos (matriz de confusión).</b></p>
+<ul><li><b>VP, verdadero positivo:</b> hubo alerta y sí desertó. Es un acierto: se pudo acompañar a tiempo.</li>
+<li><b>FP, falso positivo:</b> hubo alerta pero continuó. Es una falsa alarma: gasta la capacidad de Bienestar.</li>
+<li><b>FN, falso negativo:</b> no hubo alerta y desertó. Es un caso perdido, el error más costoso.</li>
+<li><b>VN, verdadero negativo:</b> no hubo alerta y continuó. Es un acierto silencioso.</li></ul>
+<p><b>5. Métricas.</b> <b>Precisión</b> = VP ÷ (VP + FP): de las alertas emitidas, qué proporción era real. <b>Sensibilidad</b> = VP ÷ (VP + FN): de quienes desertaron, qué proporción detectaste. <b>F1</b> equilibra ambas: 2 × precisión × sensibilidad ÷ (precisión + sensibilidad).</p>
+<p><b>6. Ejemplo con la configuración inicial</b> (promedio &lt; 3,0; reprobados &gt; 30 %; ambas casillas activas; k = 2): VP = 34, FP = 36, FN = 33, VN = 137 (suman 240). Precisión = 34 ÷ 70 ≈ 49 %; sensibilidad = 34 ÷ 67 ≈ 51 %; F1 ≈ 0,50. Pero generó 70 alertas y Bienestar solo atiende 48, así que el F1 se multiplica por 0,7 y obtiene 14 de 40 puntos.</p>
+<p><b>7. Otro ejemplo, regla más estricta</b> (promedio &lt; 3,2; reprobados &gt; 25 %; ambas casillas; k = 3): VP = 17, FP = 10, FN = 50, VN = 163. Solo 27 alertas (dentro de la capacidad) y precisión de 63 %, pero sensibilidad de 25 %: avisas poco, aciertas más y pierdes muchos casos. Es el dilema central: <i>más sensibilidad suele costar más falsas alarmas</i>.</p>
+<p><b>8. ¿De dónde salen los estudiantes ficticios?</b> A cada uno se le calcula un riesgo: sube si tiene promedio bajo, muchos créditos reprobados o ausencia, y baja si tiene apoyo. Una fórmula (la función logística) convierte ese riesgo en una probabilidad entre 0 % y 100 %, y luego se sortea con esa probabilidad si desertó. Por eso hay azar: dos estudiantes con el mismo perfil pueden terminar distinto, y ninguna regla acierta siempre.</p>
+<p><b>Cómo ganar puntos:</b> mueve los controles hasta lograr un buen equilibrio sin pasar de 48 alertas, pulsa “Registrar mi mejor configuración” y luego justifica tu regla en la reflexión.</p></details><div class=g>
+<div>Promedio &lt; <b id=sgv></b><input type=range id=sg min=2 max=4 step=.1 value=${z.g} oninput=simUpd()></div>
+<div>Créditos reprobados &gt; <b id=sfv></b> %<input type=range id=sf min=0 max=80 step=5 value=${z.f} oninput=simUpd()></div>
+<div>Alertas si hay ≥ <b id=skv></b> banderas<input type=range id=sk min=1 max=4 value=${z.k} oninput=simUpd()></div>
+<div><label><input type=checkbox id=sa style="width:auto" ${z.a?'checked':''} onchange=simUpd()> Usar ausencia intersemestral</label><br><label><input type=checkbox id=sn style="width:auto" ${z.n?'checked':''} onchange=simUpd()> Usar “sin beca o apoyo”</label></div></div>
+<div id=so></div><button class=bt onclick=simSave()>Registrar mi mejor configuración</button> <small id=simm></small><div id="fb_sim">${fbBox('sim')}</div><h2 style="margin-top:14px">Reflexión crítica</h2>${form('sim')}`}
+
+function report(){const T={art:'Ficha · Artículo',spa:'Ficha · SPADIES',uni:'Ficha · UNICAUCA',mx:'Matriz de extracción',sim:'Laboratorio de alerta temprana',fin:'Misión final'};
+let o=`# Informe del equipo: ${S.team||'—'}\nPuntaje: ${tot()} / ${MAX}\nMejor F1 simulado (puntos): ${S.sc.sim||0}/40\n`;
+Object.keys(T).forEach(k=>{o+=`\n## ${T[k]}\n`;FS[k].forEach(f=>{const s=(S.src[f.id]||[]).map(i=>SRC[i]).join(', ');o+=`\n**${f.l}**${S.ev[f.id]?` _(evidencia: ${S.ev[f.id]})_`:''}${s?` _(fuentes: ${s})_`:''}\n${S.tx[f.id]||'(sin respuesta)'}\n`})});return o}
+function showRep(){$('rep').textContent=report();$('repw').style.display='block'}
+function copyRep(){const t=report();try{navigator.clipboard.writeText(t).then(()=>$('cpm').textContent='Copiado ✓',()=>sel())}catch(e){sel()}}
+function sel(){const r=document.createRange();r.selectNodeContents($('rep'));const s=getSelection();s.removeAllRanges();s.addRange(r);$('cpm').textContent='Selecciona y copia (Ctrl/Cmd+C)'}
+
+const ST=[[
+{n:'1 · Radar de fuentes',m:10,h:()=>`<p>Briefing: tres textos, tres géneros. Identifica de dónde proviene cada afirmación antes de abrir los expedientes.</p>${quiz(RADAR,'r',SRC)}`},
+{n:'2 · Expediente bibliográfico',m:25,h:()=>`<p>Completa las tres fichas. Cada ficha exige anclaje real en la fuente; las pistas cuestan 2 pts.</p><h2>📄 Fuente 1 · Artículo científico</h2>${form('art')}<h2>📊 Fuente 2 · SPADIES 3.0 (MEN)</h2>${form('spa')}<h2>⚖️ Fuente 3 · UNICAUCA</h2>${form('uni')}`},
+{n:'3 · Matriz de extracción',m:25,h:()=>`<p>Reparte roles: cada integrante lidera una categoría. Frases con dato concreto; evita generalidades.</p>${form('mx')}`}],[
+{n:'4 · Duelo de tensiones',m:15,h:()=>`<p>Cruza las fuentes: ¿convergencia, tensión o brecha?</p>${quiz(DUELO,'d',['Convergencia','Tensión','Brecha'])}<p><small>Nota: estos escenarios contrastan SPADIES 3.0 y el modelo de Unicauca. Incorporen en la Misión 3 sus propios hallazgos del artículo.</small></p>`},
+{n:'5 · Laboratorio de alerta temprana',m:20,h:simUI},
+{n:'6 · Misión final',m:25,h:()=>`<p>Integración estratégica: de la evidencia a decisiones institucionales. Cada recomendación debe enfocarse en <b>primeros semestres</b> y sustentarse en al menos dos fuentes.</p>${form('fin')}<button class=bt onclick=showRep()>Generar informe del equipo</button><div id=repw style="display:none"><pre id=rep></pre><button onclick=copyRep()>Copiar informe</button> <button onclick=print()>Imprimir / PDF</button> <small id=cpm></small></div>`}]];
+
+const GUIDE=`<div class=card><h2>Guía del facilitador</h2><table><tr><th>Sesión 1 (60′)</th><th>Min</th></tr><tr><td>R1 Radar de fuentes + briefing y roles</td><td>10</td></tr><tr><td>R2 Expedientes (3 fichas)</td><td>25</td></tr><tr><td>R3 Matriz de extracción</td><td>25</td></tr></table><br><table><tr><th>Sesión 2 (60′)</th><th>Min</th></tr><tr><td>R4 Duelo de tensiones</td><td>15</td></tr><tr><td>R5 Laboratorio de alerta temprana</td><td>20</td></tr><tr><td>R6 Misión final + informe</td><td>25</td></tr></table>
+<p><b>Roles (equipos de 3–4):</b> Curador de evidencia, Analista de datos, Redactor/a, Auditor/a de fuentes (valida citas y pistas).</p>
+<p><b>Evaluación sugerida:</b> puntaje automático (comprensión y anclaje) + rúbrica docente sobre el informe (rigor de triangulación 40 %, calidad argumentativa 30 %, viabilidad de las recomendaciones 30 %).</p>
+<p><b>Límites del autocalificador:</b> verifica extensión y términos clave, no la veracidad. El informe final debe revisarse por el docente. El progreso se guarda en este navegador. Cada ítem tiene un botón “Retroalimentar” protegido con contraseña: entrégala al finalizar la sesión (al digitarla una vez se desbloquea la retroalimentación de todos los ítems en esa pestaña).</p></div>`;
+const WEL='Bienvenido a Operación Permanencia.\n\nAntes de la Sesión 1, lee con calma los tres anexos: el artículo científico, el documento técnico de SPADIES 3.0 y la norma de permanencia de Unicauca. Pega un texto, cárgalo desde un PDF o TXT, o escríbelo con el botón Editar.\n\nHaz clic en cualquier palabra para empezar a leer desde ella, o arrastra la barra de progreso.';
+const SS=window.speechSynthesis,RD={w:[],cur:0,pl:false,rate:1,vol:80,fs:19,voice:null,tk:0,bs:false,vs:[]};
+const ACC={'es-CO':'Español (Colombia)','es-MX':'Español (México)','es-ES':'Español (España)','es-US':'Español (EE. UU.)','es-AR':'Español (Argentina)'};
+const shortN=v=>v.name.replace(/Microsoft\s+|Online \(Natural\)|\s*-\s*.*$/g,'').trim();
+function rdSt(t){const e=$('rdst');if(e)e.textContent=t}
+function rdBtn(){const e=$('rdpl');if(e)e.textContent=RD.pl?'⏸':'▶'}
+function rdStop(){RD.tk++;RD.pl=false;try{SS&&SS.cancel()}catch(e){}rdBtn()}
+function rdTok(){const t=S.rd||'',re=/\S+/g;let m;RD.w=[];while((m=re.exec(t)))RD.w.push({s:m.index,e:m.index+m[0].length,w:m[0]});if(RD.cur>=RD.w.length)RD.cur=0}
+function rdView(){const t=S.rd||'';let h='',p=0;RD.w.forEach((w,i)=>{h+=esc(t.slice(p,w.s))+`<span class=w data-i=${i}>${esc(w.w)}</span>`;p=w.e});$('rdt').innerHTML=h+esc(t.slice(p));$('rdt').style.fontSize=RD.fs+'px';$('rdr').max=Math.max(0,RD.w.length-1);rdMark(RD.cur,false)}
+function rdMark(i,sc){const el=$('rdt');if(!el)return;const o=el.querySelector('.on');if(o)o.classList.remove('on');const n=el.querySelector(`[data-i="${i}"]`);if(n){n.classList.add('on');if(sc!==false)n.scrollIntoView({block:'nearest'})}$('rdr').value=i;if(RD.w.length)rdSt(`${RD.pl?'Leyendo':'Posición'} · palabra ${i+1} de ${RD.w.length}`)}
+function rdSpeak(i){RD.tk++;const tk=RD.tk,t=S.rd||'';try{SS.cancel()}catch(e){}
+if(i>=RD.w.length){RD.pl=false;RD.cur=0;rdBtn();rdSt('Lectura finalizada');return}
+let j=i,n=0;while(j<RD.w.length-1){n+=RD.w[j].e-RD.w[j].s+1;if(n>220||/[.!?…:;]$/.test(RD.w[j].w)||/\n/.test(t.slice(RD.w[j].e,RD.w[j+1].s)))break;j++}
+const base=RD.w[i].s,u=new SpeechSynthesisUtterance(t.slice(base,RD.w[j].e));
+u.voice=RD.voice;u.lang=RD.voice?RD.voice.lang:'es-CO';u.rate=RD.rate;u.volume=RD.vol/100;
+u.onboundary=e=>{if(tk!==RD.tk||(e.name&&e.name!=='word'))return;RD.bs=true;const a=base+e.charIndex;let k=i;while(k<j&&RD.w[k+1].s<=a)k++;RD.cur=k;rdMark(k)};
+u.onend=()=>{if(tk===RD.tk)rdSpeak(j+1)};
+u.onerror=e=>{if(tk===RD.tk&&e.error!=='canceled'&&e.error!=='interrupted'){RD.pl=false;rdBtn();rdSt('Error de voz: '+e.error)}};
+RD.cur=i;rdMark(i);SS.speak(u);
+setTimeout(()=>{if(tk===RD.tk&&!RD.bs)rdEst(i,j,tk)},700)}
+function rdEst(k,j,tk){if(tk!==RD.tk||RD.bs||k>j)return;RD.cur=k;rdMark(k);setTimeout(()=>rdEst(k+1,j,tk),(RD.w[k].w.length*65+110)/RD.rate)}
+function rdPlay(){if(!RD.w.length)return;if(RD.pl){rdStop();rdSt('Pausado');return}RD.pl=true;RD.bs=false;rdBtn();rdSpeak(RD.cur>=RD.w.length-1?0:RD.cur)}
+function rdFrom(i){RD.cur=i;if(RD.pl){rdSpeak(i)}else rdMark(i)}
+function rdRate(r){RD.rate=r;$('rdsp').textContent=r.toFixed(1)+'×';$('rdrt').textContent=r.toFixed(1)+'×';$('rdrs').value=r;if(RD.pl)rdSpeak(RD.cur)}
+function rdBadge(){const v=RD.voice;$('rdb').textContent=v?((/Online|Natural|Microsoft/i.test(v.name)?'Edge TTS · ':'Voz del navegador · ')+v.lang+' '+shortN(v)):'Sin voz en español detectada'}
+function rdVoices(){if(!$('rda'))return;RD.vs=(SS?SS.getVoices():[]).filter(v=>/^es/i.test(v.lang));const L=[...new Set(RD.vs.map(v=>v.lang.replace('_','-')))].sort((a,b)=>(b==='es-CO')-(a==='es-CO')||a.localeCompare(b));
+$('rda').innerHTML=L.map(l=>`<option value="${l}">${ACC[l]||l}</option>`).join('');rdAcc()}
+function rdAcc(){const l=$('rda').value,vs=RD.vs.filter(v=>v.lang.replace('_','-')===l);$('rdv2').innerHTML=vs.map((v,i)=>`<option value="${i}">${esc(shortN(v))} · ${v.lang}</option>`).join('');const k=vs.findIndex(v=>/salome/i.test(v.name));if(k>=0)$('rdv2').value=k;RD.voice=vs[Math.max(0,k)]||null;RD._vs=vs;rdBadge()}
+function rdSetText(t){rdStop();S.rd=t;sv();RD.cur=0;rdTok();rdView();rdSt('Texto cargado · listo para leer')}
+function loadPdfJs(){return new Promise((ok,ko)=>{if(window.pdfjsLib)return ok();const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';s.onload=ok;s.onerror=ko;document.head.appendChild(s)})}
+async function rdFile(f){try{let t='';if(/\.pdf$/i.test(f.name)){rdSt('Leyendo PDF…');await loadPdfJs();pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';const d=await pdfjsLib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise;for(let p=1;p<=d.numPages;p++){const c=await(await d.getPage(p)).getTextContent();t+=c.items.map(x=>x.str).join(' ')+'\n\n'}}else t=await f.text();rdSetText(t.trim())}catch(e){rdSt('No pude leer el archivo. Pega el texto con “Editar”.')}}
+function rdInit(){if(!S.rd)S.rd=WEL;
+$('app').innerHTML=`<div class="rd"><div class=hd><div><h1>Lector<i>.</i></h1><small>Escucha tu texto con resaltado palabra por palabra. Voz Edge TTS.</small></div><span class=bdg id=rdb></span></div>
+<div class=rdg><div class=rdc id=rdvp><b style="font-size:11px;letter-spacing:.08em;color:var(--mu)">VOZ</b><label>Acento</label><select id=rda></select><label>Voz</label><select id=rdv2></select><label>Velocidad <span id=rdrt style="float:right;text-transform:none">1.0×</span></label><input type=range id=rdrs min=.5 max=2 step=.1 value=${RD.rate}><label>Volumen <span id=rdvt style="float:right;text-transform:none">${RD.vol}%</span></label><input type=range id=rdvo min=0 max=100 value=${RD.vol}><button id=rdtv style="width:100%;margin-top:12px">🔊 Probar voz</button></div>
+<div class=rdc><div class=row style="justify-content:space-between"><label style="margin:0">Tu texto</label><span class=row><button id=rde>✏️ Editar</button><button id=rdf>📎 Cargar PDF / TXT</button></span></div><input type=file id=rdi accept=".pdf,.txt,text/plain,application/pdf" hidden>
+<div id=rdt class=rdt></div><textarea id=rdx rows=10 style="display:none;margin-top:10px"></textarea></div></div>
+<div class=rdp><button id=rdpv title="Frase anterior">«</button><button id=rdpl class=pl>▶</button><button id=rdsto title="Detener">■</button><button id=rdrr title="Reiniciar">↻</button><input type=range id=rdr min=0 max=0 value=0><small id=rdst>Listo para leer</small><button id=rdsp>1.0×</button><button id=rdfm>A−</button><button id=rdfp>A+</button><button id=rdg title="Opciones de voz">⚙</button></div></div>`;
+rdTok();rdView();rdVoices();if(SS)SS.onvoiceschanged=rdVoices;
+$('rda').onchange=rdAcc;$('rdv2').onchange=()=>{RD.voice=RD._vs[+$('rdv2').value]||null;rdBadge();if(RD.pl)rdSpeak(RD.cur)};
+$('rdrs').oninput=e=>rdRate(+e.target.value);$('rdvo').oninput=e=>{RD.vol=+e.target.value;$('rdvt').textContent=RD.vol+'%'};
+$('rdtv').onclick=()=>{rdStop();const u=new SpeechSynthesisUtterance('Hola, esta es una prueba de la voz seleccionada.');u.voice=RD.voice;u.lang=RD.voice?RD.voice.lang:'es-CO';u.rate=RD.rate;u.volume=RD.vol/100;SS.speak(u)};
+$('rdt').onclick=e=>{const i=e.target.dataset&&e.target.dataset.i;if(i!==undefined){RD.pl=true;RD.bs=false;rdBtn();rdSpeak(+i)}};
+$('rdpl').onclick=rdPlay;$('rdsto').onclick=()=>{rdStop();RD.cur=0;rdMark(0);rdSt('Detenido')};$('rdrr').onclick=()=>{RD.cur=0;RD.pl=true;RD.bs=false;rdBtn();rdSpeak(0)};
+$('rdpv').onclick=()=>{let i=Math.max(0,RD.cur-1);while(i>0&&!/[.!?…]$/.test(RD.w[i-1].w))i--;rdFrom(i)};
+$('rdr').oninput=e=>rdFrom(+e.target.value);
+$('rdsp').onclick=()=>{const L=[.8,1,1.25,1.5,2],k=L.findIndex(x=>x>RD.rate+.01);rdRate(L[k<0?0:k])};
+$('rdfm').onclick=()=>{RD.fs=Math.max(14,RD.fs-2);$('rdt').style.fontSize=RD.fs+'px'};$('rdfp').onclick=()=>{RD.fs=Math.min(34,RD.fs+2);$('rdt').style.fontSize=RD.fs+'px'};
+$('rdg').onclick=()=>{const p=$('rdvp');p.style.display=p.style.display==='none'?'':'none'};
+$('rdf').onclick=()=>$('rdi').click();$('rdi').onchange=e=>{if(e.target.files[0])rdFile(e.target.files[0])};
+$('rde').onclick=()=>{const x=$('rdx'),ed=x.style.display==='none';if(ed){rdStop();x.value=S.rd;x.style.display='block';$('rdt').style.display='none';$('rde').textContent='✔ Listo';x.focus()}else{x.style.display='none';$('rdt').style.display='';$('rde').textContent='✏️ Editar';rdSetText(x.value)}};
+rdRate(RD.rate)}
+function go(){rdStop();const tb=[[3,'📖 LEER'],[0,'Sesión 1'],[1,'Sesión 2'],[2,'Guía']].map(x=>`<button class="${S.s===x[0]?'on':''}" onclick="S.s=${x[0]};S.r=0;sv();go()">${x[1]}</button>`).join('');$('tabs').innerHTML=tb;
+if(S.s===3){rdInit();hdr();return}
+if(S.s===2){$('app').innerHTML=GUIDE;return}
+const L=ST[S.s],st=L[S.r];$('app').innerHTML=`<div class=st>${L.map((x,i)=>`<button class="${S.r===i?'on':''}" onclick="S.r=${i};sv();go()">${x.n} <small>(${x.m}′)</small></button>`).join('')}</div><div class=card><h2>${st.n}</h2>${st.h()}</div>`;hdr();if(S.s===1&&S.r===1)simUpd()}
+let T=3600,iv=null;function tm(){if(iv){clearInterval(iv);iv=null;return}iv=setInterval(()=>{T=Math.max(0,T-1);$('tmb').textContent='⏱ '+String(Math.floor(T/60)).padStart(2,'0')+':'+String(T%60).padStart(2,'0')},1000)}
+go();
+</script></body></html>
